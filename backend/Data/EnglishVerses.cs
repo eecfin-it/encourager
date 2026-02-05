@@ -21,7 +21,7 @@ public static class EnglishVerses
         new("Come to me, all you who are weary and burdened, and I will give you rest.", "Matthew 11:28"),
         new("The Lord is my light and my salvation — whom shall I fear?", "Psalm 27:1"),
         new("God is our refuge and strength, an ever-present help in trouble.", "Psalm 46:1"),
-        new("Have I not commanded you? Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.", "Joshua 1:9"),
+        new("The Lord himself goes before you and will be with you; he will never leave you nor forsake you. Do not be afraid; do not be discouraged.", "Deuteronomy 31:8"),
         new("The name of the Lord is a fortified tower; the righteous run to it and are safe.", "Proverbs 18:10"),
         new("So do not fear, for I am with you; do not be dismayed, for I am your God. I will strengthen you and help you.", "Isaiah 41:10"),
         new("The Lord your God is in your midst, a mighty one who will save; he will rejoice over you with gladness.", "Zephaniah 3:17"),
@@ -54,7 +54,7 @@ public static class EnglishVerses
         new("Wait for the Lord; be strong and take heart and wait for the Lord.", "Psalm 27:14"),
         new("Commit to the Lord whatever you do, and he will establish your plans.", "Proverbs 16:3"),
         new("The joy of the Lord is your strength.", "Nehemiah 8:10"),
-        new("Yet those who wait for the Lord will gain new strength; they will mount up with wings like eagles.", "Isaiah 40:31"),
+        new("Be kind and compassionate to one another, forgiving each other, just as in Christ God forgave you.", "Ephesians 4:32"),
         new("Give thanks to the Lord, for he is good; his love endures forever.", "Psalm 107:1"),
     ];
 }

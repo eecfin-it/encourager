@@ -90,8 +90,10 @@ export default function Home() {
 
   function handleAmen() {
     if (!verse) return
-    const data: BlessingData = { timestamp: new Date().toISOString(), verse }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    try {
+      const data: BlessingData = { timestamp: new Date().toISOString(), verse }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    } catch { /* quota exceeded — still show success, just won't persist */ }
     savedIndex.current = verse.index
     setLockedToday(true)
     setAccepted(true)
@@ -113,7 +115,7 @@ export default function Home() {
       {/* Header: logo + church name */}
       <header className="flex flex-col items-center gap-3 mb-6">
         <img
-          src="/logo.png"
+          src="/logo-sm.png"
           alt="ECCFIN"
           className="h-20 w-auto object-contain"
           onError={(e) => {
