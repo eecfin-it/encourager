@@ -12,6 +12,8 @@ export interface Translations {
   fallbackReference: string
   alreadyReceived: string
   nextBlessingAt: string
+  churchName: string
+  footerCredit: string
 }
 
 const en: Translations = {
@@ -26,6 +28,8 @@ const en: Translations = {
   fallbackReference: 'Psalm 145:9',
   alreadyReceived: 'You have already received your Word for today. May it stay in your heart.',
   nextBlessingAt: 'Next blessing available at midnight.',
+  churchName: 'Ethiopian Evangelical Church in Finland',
+  footerCredit: 'Designed with ❤️ by ECCFIN Media Team',
 }
 
 const am: Translations = {
@@ -40,6 +44,8 @@ const am: Translations = {
   fallbackReference: 'መዝሙር 145፥9',
   alreadyReceived: 'የዛሬውን ቃል አስቀድመው ተቀብለዋል። በልብዎ ይኑር።',
   nextBlessingAt: 'ቀጣይ በረከት ከእኩለ ሌሊት በኋላ ይገኛል።',
+  churchName: 'የኢትዮጵያ ወንጌላዊት ቤተክርስቲያን በፊንላንድ',
+  footerCredit: 'በ ❤️ የተሰራ በ ECCFIN ሚዲያ ቡድን',
 }
 
 const fi: Translations = {
@@ -54,6 +60,8 @@ const fi: Translations = {
   fallbackReference: 'Psalmi 145:9',
   alreadyReceived: 'Olet jo saanut sanasi tälle päivälle. Säilytä se sydämessäsi.',
   nextBlessingAt: 'Seuraava siunaus on saatavilla keskiyöllä.',
+  churchName: 'Etiopian evankelinen kirkko Suomessa',
+  footerCredit: 'Suunniteltu ❤️:lla — ECCFIN Media Team',
 }
 
 export const translations: Record<Language, Translations> = { en, am, fi }

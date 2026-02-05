@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+@theme {
+  --color-eccfin-navy: #1a374f;
+  --color-eccfin-green: #6f9078;
+  --color-eccfin-terracotta: #d06450;
+  --color-eccfin-cream: #fdfbca;
+  --color-eccfin-slate: #424555;
+  --color-eccfin-muted: #cad4d7;
+  --color-eccfin-blue: #77c4f0;
+
+  --font-serif: "Merriweather", "Georgia", serif;
+}

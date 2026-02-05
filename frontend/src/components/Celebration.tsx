@@ -13,7 +13,7 @@ export default function Celebration({ fire }: CelebrationProps) {
       particleCount: 120,
       spread: 80,
       origin: { y: 0.7 },
-      colors: ['#93c5fd', '#c4b5fd', '#fcd34d', '#f9a8d4'],
+      colors: ['#1a374f', '#6f9078', '#d06450', '#fdfbca', '#77c4f0'],
     })
   }, [fire])
 

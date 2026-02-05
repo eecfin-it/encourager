@@ -15,9 +15,9 @@ export default function AmenButton({ onClick, disabled }: AmenButtonProps) {
       disabled={disabled}
       className="
         relative px-14 py-4 text-xl font-bold text-white rounded-full cursor-pointer
-        bg-gradient-to-r from-blue-500 to-indigo-500
-        shadow-[0_0_24px_rgba(99,102,241,0.35)]
-        hover:shadow-[0_0_36px_rgba(99,102,241,0.5)] hover:scale-105
+        bg-eccfin-navy
+        shadow-[0_0_24px_rgba(26,55,79,0.35)]
+        hover:shadow-[0_0_36px_rgba(26,55,79,0.5)] hover:scale-105
         active:scale-95
         transition-all duration-200
         disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none

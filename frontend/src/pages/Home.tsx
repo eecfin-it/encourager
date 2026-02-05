@@ -99,7 +99,6 @@ export default function Home() {
 
   function handleNext() {
     setAccepted(false)
-    // lockedToday is already true from handleAmen → will render ReflectionView
   }
 
   // Reflection screen — user already blessed today
@@ -108,31 +107,54 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center px-6 py-12 bg-gradient-to-br from-slate-50 to-blue-50 font-sans">
+    <div className="min-h-dvh flex flex-col items-center justify-between px-6 py-10 bg-eccfin-cream font-sans">
       <Celebration fire={accepted} />
 
-      <AnimatePresence mode="wait">
-        {!accepted ? (
-          <div
-            key="verse"
-            className="flex flex-col items-center gap-8 w-full"
-          >
-            {loading ? (
-              <div className="h-48 flex items-center">
-                <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin" />
-              </div>
-            ) : (
-              verse && (
-                <VerseDisplay text={verse.text} reference={verse.reference} />
-              )
-            )}
+      {/* Header: logo + church name */}
+      <header className="flex flex-col items-center gap-3 mb-6">
+        <img
+          src="/logo.png"
+          alt="ECCFIN"
+          className="h-20 w-auto object-contain"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none'
+          }}
+        />
+        <h1 className="text-sm font-bold text-eccfin-navy tracking-wide text-center">
+          {t.churchName}
+        </h1>
+      </header>
 
-            <AmenButton onClick={handleAmen} disabled={loading} />
-          </div>
-        ) : (
-          <SuccessView key="success" onNext={handleNext} />
-        )}
-      </AnimatePresence>
+      {/* Main content */}
+      <main className="flex-1 flex flex-col items-center justify-center w-full">
+        <AnimatePresence mode="wait">
+          {!accepted ? (
+            <div
+              key="verse"
+              className="flex flex-col items-center gap-8 w-full"
+            >
+              {loading ? (
+                <div className="h-48 flex items-center">
+                  <div className="w-8 h-8 border-4 border-eccfin-green/30 border-t-eccfin-navy rounded-full animate-spin" />
+                </div>
+              ) : (
+                verse && (
+                  <VerseDisplay text={verse.text} reference={verse.reference} />
+                )
+              )}
+
+              <AmenButton onClick={handleAmen} disabled={loading} />
+            </div>
+          ) : (
+            <SuccessView key="success" onNext={handleNext} />
+          )}
+        </AnimatePresence>
+      </main>
+
+      {/* Footer */}
+      <footer className="mt-8 text-center">
+        <p className="text-xs text-eccfin-slate">{t.footerCredit}</p>
+      </footer>
     </div>
   )
 }

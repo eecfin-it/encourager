@@ -21,18 +21,18 @@ export default function SuccessView({ onNext }: SuccessViewProps) {
         animate={{ scale: [1, 1.2, 1] }}
         transition={{ duration: 1.5, repeat: Infinity }}
       >
-        <Heart className="w-16 h-16 text-pink-400 fill-pink-400" />
+        <Heart className="w-16 h-16 text-eccfin-terracotta fill-eccfin-terracotta" />
       </motion.div>
 
-      <h2 className="text-3xl font-bold text-slate-700">{t.godBless}</h2>
-      <p className="text-slate-500">{t.mayThisWord}</p>
+      <h2 className="text-3xl font-bold text-eccfin-navy">{t.godBless}</h2>
+      <p className="text-eccfin-slate">{t.mayThisWord}</p>
 
       <button
         onClick={onNext}
         className="
-          mt-4 px-8 py-3 border-2 border-blue-400 text-blue-600
+          mt-4 px-8 py-3 border-2 border-eccfin-green text-eccfin-navy
           font-semibold rounded-full cursor-pointer
-          hover:bg-blue-50 active:scale-95
+          hover:bg-eccfin-green/10 active:scale-95
           transition-all duration-200
         "
       >
