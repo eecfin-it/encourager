@@ -20,8 +20,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 
-app.MapGet("/api/verse/random", (VerseService verseService) =>
-    Results.Ok(verseService.GetRandom()))
+app.MapGet("/api/verse/random", (VerseService verseService, string? lang) =>
+    Results.Ok(verseService.GetRandom(lang ?? "en")))
     .WithName("GetRandomVerse");
 
 app.Run();

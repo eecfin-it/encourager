@@ -1,4 +1,5 @@
 import { Heart } from 'lucide-react'
+import { useLanguage } from '../contexts/LanguageContext'
 
 interface AmenButtonProps {
   onClick: () => void
@@ -6,6 +7,8 @@ interface AmenButtonProps {
 }
 
 export default function AmenButton({ onClick, disabled }: AmenButtonProps) {
+  const { t } = useLanguage()
+
   return (
     <button
       onClick={onClick}
@@ -22,7 +25,7 @@ export default function AmenButton({ onClick, disabled }: AmenButtonProps) {
     >
       <span className="flex items-center gap-2">
         <Heart className="w-5 h-5" />
-        Amen
+        {t.amen}
       </span>
     </button>
   )

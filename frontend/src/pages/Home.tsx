@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import VerseDisplay from '../components/VerseDisplay'
 import AmenButton from '../components/AmenButton'
 import Celebration from '../components/Celebration'
 import SuccessView from '../components/SuccessView'
+import { useLanguage } from '../contexts/LanguageContext'
 
 interface Verse {
   text: string
@@ -14,27 +15,28 @@ export default function Home() {
   const [verse, setVerse] = useState<Verse | null>(null)
   const [accepted, setAccepted] = useState(false)
   const [loading, setLoading] = useState(true)
+  const { language, t } = useLanguage()
 
-  async function fetchVerse() {
+  const fetchVerse = useCallback(async () => {
     setLoading(true)
     setAccepted(false)
     try {
-      const res = await fetch('/api/verse/random')
+      const res = await fetch(`/api/verse/random?lang=${language}`)
       const data: Verse = await res.json()
       setVerse(data)
     } catch {
       setVerse({
-        text: 'The Lord is good to all; he has compassion on all he has made.',
-        reference: 'Psalm 145:9',
+        text: t.fallbackVerse,
+        reference: t.fallbackReference,
       })
     } finally {
       setLoading(false)
     }
-  }
+  }, [language, t.fallbackVerse, t.fallbackReference])
 
   useEffect(() => {
     fetchVerse()
-  }, [])
+  }, [fetchVerse])
 
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center px-6 py-12 bg-gradient-to-br from-slate-50 to-blue-50 font-sans">

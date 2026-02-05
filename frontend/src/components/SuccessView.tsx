@@ -1,11 +1,14 @@
 import { motion } from 'framer-motion'
 import { Heart } from 'lucide-react'
+import { useLanguage } from '../contexts/LanguageContext'
 
 interface SuccessViewProps {
   onNext: () => void
 }
 
 export default function SuccessView({ onNext }: SuccessViewProps) {
+  const { t } = useLanguage()
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -21,8 +24,8 @@ export default function SuccessView({ onNext }: SuccessViewProps) {
         <Heart className="w-16 h-16 text-pink-400 fill-pink-400" />
       </motion.div>
 
-      <h2 className="text-3xl font-bold text-slate-700">God Bless</h2>
-      <p className="text-slate-500">May this word stay with you today.</p>
+      <h2 className="text-3xl font-bold text-slate-700">{t.godBless}</h2>
+      <p className="text-slate-500">{t.mayThisWord}</p>
 
       <button
         onClick={onNext}
@@ -33,7 +36,7 @@ export default function SuccessView({ onNext }: SuccessViewProps) {
           transition-all duration-200
         "
       >
-        New Blessing
+        {t.newBlessing}
       </button>
     </motion.div>
   )
