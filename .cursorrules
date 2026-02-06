@@ -14,6 +14,12 @@ For detailed instructions, see:
 
 ## Key Rules Summary
 
+### Auto Documentation ⭐ MANDATORY
+- **When making ANY code changes via Cursor AI, automatically update relevant documentation files**
+- Include documentation updates in the SAME commit as code changes
+- See `Agents/rules/auto-documentation.md` for complete mapping and guidelines
+- This applies to: new components, pages, API endpoints, services, user flows, infrastructure changes
+
 ### Unit Testing
 - Use naming convention: `[MethodName]_Should[ExpectedBehavior]_When[Condition]`
 - Use Test Data Builders for domain objects
