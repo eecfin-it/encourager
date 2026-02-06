@@ -62,3 +62,7 @@ e2e/.auth/
 *.swp
 *.swo
 *~
+
+# MkDocs
+site/
+.cache/

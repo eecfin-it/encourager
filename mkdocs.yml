@@ -1,0 +1,72 @@
+site_name: Encourager Documentation
+site_description: Documentation for Encourager - Scripture Verse Encouragement PWA
+site_url: https://YOUR_USERNAME.github.io/Encourager
+repo_url: https://github.com/YOUR_USERNAME/Encourager
+repo_name: YOUR_USERNAME/Encourager
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: deep blue
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: deep blue
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.annotate
+    - content.code.copy
+    - content.tabs.link
+
+nav:
+  - Home: index.md
+  - Architecture:
+    - architecture/system-architecture.md
+    - architecture/component-relationships.md
+    - architecture/data-flow.md
+    - architecture/deployment-architecture.md
+  - User Documentation:
+    - user/user-guide.md
+    - user/features.md
+    - user/troubleshooting.md
+  - Developer Documentation:
+    - developer/getting-started.md
+    - developer/api-reference.md
+    - developer/development-workflows.md
+    - developer/testing-guidelines.md
+    - developer/deployment.md
+    - developer/contributing.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - admonition
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      enable_creation_date: true
