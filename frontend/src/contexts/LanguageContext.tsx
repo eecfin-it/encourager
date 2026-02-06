@@ -2,8 +2,6 @@ import { useState, type ReactNode } from 'react'
 import { translations, type Language } from '../i18n/translations'
 import { LanguageContext } from './languageContextValue'
 
-export type { LanguageContextValue } from './languageContextValue'
-export { LanguageContext } from './languageContextValue'
 
 function getInitialLanguage(): Language {
   const stored = localStorage.getItem('lang')
