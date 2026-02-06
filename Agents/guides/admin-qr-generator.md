@@ -28,8 +28,8 @@ Create an admin route for generating QR codes that can be projected on church sc
 import { QRCodeSVG } from 'qrcode.react';
 
 export default function Admin() {
-  const siteUrl = import.meta.env.PROD 
-    ? 'https://your-production-url.com' 
+  const siteUrl = import.meta.env.PROD
+    ? window.location.origin  // Uses actual production URL
     : 'http://localhost:5173';
 
   return (

@@ -394,7 +394,7 @@ The repository includes a GitHub Actions workflow that deploys on every push to 
        {
          "Effect": "Allow",
          "Principal": {
-           "Federated": "arn:aws:iam::YOUR_ACCOUNT_ID:oidc-provider/token.actions.githubusercontent.com"
+           "Federated": "arn:aws:iam::<YOUR_ACCOUNT_ID>:oidc-provider/token.actions.githubusercontent.com"
          },
          "Action": "sts:AssumeRoleWithWebIdentity",
          "Condition": {
@@ -402,7 +402,7 @@ The repository includes a GitHub Actions workflow that deploys on every push to 
              "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
            },
            "StringLike": {
-             "token.actions.githubusercontent.com:sub": "repo:YOUR_ORG/Encourager:*"
+             "token.actions.githubusercontent.com:sub": "repo:mitikutesh/Encourager:*"
            }
          }
        }
