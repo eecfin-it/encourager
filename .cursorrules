@@ -1,0 +1,44 @@
+# Cursor Rules for Encourager Project
+
+This file references the organized agent instructions in the `Agents/` directory.
+
+## Quick Reference
+
+For detailed instructions, see:
+- **Coding Standards:** `Agents/rules/coding-standards.md`
+- **Unit Testing:** `Agents/rules/unit-testing.md`
+- **Documentation:** `Agents/rules/documentation.md`
+- **Project Context:** `Agents/context/project-overview.md`
+- **Branding:** `Agents/context/branding.md`
+
+## Key Rules Summary
+
+### Unit Testing
+- Use naming convention: `[MethodName]_Should[ExpectedBehavior]_When[Condition]`
+- Use Test Data Builders for domain objects
+- Use NSubstitute for mocks
+- No comments in unit tests
+- No blank lines between Arrange statements
+
+### Code Style
+- React: Use React 19 features, let React Compiler handle optimizations
+- C#: Use C# 14 features, minimal APIs, async/await patterns
+- TypeScript: Strict typing, no `any` types
+- Follow single responsibility principle
+
+### Branding
+- Primary: `#1a374f` (Deep Navy)
+- Secondary: `#6f9078` (Earthy Green)
+- Accent: `#d06450` (Warm Terracotta)
+- Background: `#fdfbca` (Cream)
+- See `Agents/context/branding.md` for full guidelines
+
+### Project Context
+- Mobile-first PWA for QR code blessings
+- .NET 10 backend, React 19 frontend
+- One blessing per day rule
+- Multi-language support (en, am, fi)
+
+## Full Documentation
+
+See `Agents/README.md` for complete index of all available instructions and guides.
