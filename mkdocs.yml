@@ -1,8 +1,8 @@
 site_name: Encourager Documentation
 site_description: Documentation for Encourager - Scripture Verse Encouragement PWA
-site_url: https://mitikutesh.github.io/Encourager
-repo_url: https://github.com/mitikutesh/Encourager
-repo_name: mitikutesh/Encourager
+site_url: https://eecfin-it.github.io/encourager
+repo_url: https://github.com/eecfin-it/encourager
+repo_name: eecfin-it/encourager
 
 theme:
   name: material

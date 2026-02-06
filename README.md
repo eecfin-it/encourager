@@ -341,7 +341,7 @@ The built site will be in the `site/` directory (which is gitignored).
 - **Developer Documentation**: `docs/developer/` - Setup, API reference, workflows, testing
 - **Architecture Documentation**: `docs/architecture/` - System design, data flow, deployment
 
-Documentation is published at: https://mitikutesh.github.io/Encourager
+Documentation is published at: https://eecfin-it.github.io/encourager
 
 ## Publishing to AWS
 
@@ -440,7 +440,7 @@ The repository includes a GitHub Actions workflow that deploys on every push to 
              "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
            },
            "StringLike": {
-             "token.actions.githubusercontent.com:sub": "repo:mitikutesh/Encourager:*"
+             "token.actions.githubusercontent.com:sub": "repo:eecfin-it/encourager:*"
            }
          }
        }

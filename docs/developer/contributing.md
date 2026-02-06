@@ -21,7 +21,7 @@ Thank you for your interest in contributing to Encourager! This guide will help 
 ### 1. Fork and Clone
 
 ```bash
-# Fork the repository on GitHub (https://github.com/mitikutesh/Encourager)
+# Fork the repository on GitHub (https://github.com/eecfin-it/encourager)
 # Then clone your fork
 git clone https://github.com/<your-username>/Encourager.git
 cd Encourager
