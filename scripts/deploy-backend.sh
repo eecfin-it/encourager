@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 AWS_REGION=${AWS_REGION:-eu-north-1}
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 ECR_REPO="encourager-api"
@@ -24,7 +25,7 @@ echo "=========================================="
 
 echo ""
 echo "Step 1: Building Docker image..."
-cd "$(dirname "$0")/../backend"
+cd "${REPO_ROOT}/backend"
 docker build -f Dockerfile.lambda -t ${ECR_REPO}:${IMAGE_TAG} .
 
 echo ""
@@ -44,7 +45,7 @@ docker push ${ECR_URI}
 
 echo ""
 echo "Step 5: Deploying with SAM..."
-cd "$(dirname "$0")/../infrastructure"
+cd "${REPO_ROOT}/infrastructure"
 sam build
 sam deploy \
   --stack-name ${STACK_NAME} \

@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ENVIRONMENT=${1:-prod}
 STACK_NAME=${STACK_NAME:-encourager-app}
 AWS_REGION=${AWS_REGION:-eu-north-1}
@@ -31,7 +32,7 @@ echo "S3 Bucket: $BUCKET_NAME"
 
 echo ""
 echo "Step 2: Building frontend..."
-cd "$(dirname "$0")/../frontend"
+cd "${REPO_ROOT}/frontend"
 npm ci
 npm run build
 
