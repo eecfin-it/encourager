@@ -3,7 +3,7 @@ set -euo pipefail
 
 ENVIRONMENT=${1:-prod}
 STACK_NAME=${STACK_NAME:-encourager-app}
-AWS_REGION=${AWS_REGION:-us-east-1}
+AWS_REGION=${AWS_REGION:-eu-north-1}
 
 echo "=========================================="
 echo "Deploying Frontend to S3"

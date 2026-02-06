@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-AWS_REGION=${AWS_REGION:-us-east-1}
+AWS_REGION=${AWS_REGION:-eu-north-1}
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 ECR_REPO="encourager-api"
 IMAGE_TAG=$(git rev-parse --short HEAD)
