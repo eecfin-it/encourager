@@ -116,6 +116,195 @@ curl http://localhost:5226/api/health
 | GET    | `/api/verse/random`| Get a random (or specific) verse | `lang` (en/am/fi), `index` |
 | GET    | `/api/health`      | Health check endpoint            | —                         |
 
+## Testing
+
+The project includes three types of tests: backend unit tests, frontend linting, and end-to-end (E2E) tests.
+
+### Running All Tests Locally
+
+To run all tests locally, execute each test suite in sequence:
+
+```bash
+# 1. Backend unit tests
+dotnet test
+
+# 2. Frontend linting
+cd frontend
+npm run lint
+
+# 3. E2E tests (requires services to be running)
+cd ../e2e
+npm install
+npx playwright install chromium
+npm test
+```
+
+### Individual Test Suites
+
+#### Backend Unit Tests
+
+Backend tests are written using xUnit and test the API endpoints and business logic.
+
+```bash
+# Run all backend tests
+dotnet test
+
+# Run tests with verbose output
+dotnet test --verbosity normal
+
+# Run tests for a specific project
+dotnet test tests/Encourager.Api.Tests/Encourager.Api.Tests.csproj
+```
+
+**Test Location**: `tests/Encourager.Api.Tests/`
+
+**What's Tested**:
+- Health endpoint responses
+- Verse endpoint functionality
+- Language support (English, Amharic, Finnish)
+- Error handling and fallback behavior
+
+#### Frontend Linting
+
+The frontend uses ESLint for code quality checks.
+
+```bash
+cd frontend
+npm run lint
+```
+
+**What's Checked**:
+- TypeScript type errors
+- React best practices
+- Code style consistency
+
+#### E2E Tests
+
+E2E tests use Playwright to test the full application stack in a browser environment.
+
+**Prerequisites**:
+- Docker Desktop must be running
+- Services must be available at `http://localhost:4000`
+
+**Setup** (first time only):
+
+```bash
+cd e2e
+npm install
+npx playwright install chromium
+```
+
+**Running E2E Tests**:
+
+```bash
+# Run tests in headless mode (default)
+cd e2e
+npm test
+
+# Run tests with visible browser
+npm run test:headed
+
+# Run specific test file
+npx playwright test tests/smoke.spec.ts
+
+# Run tests in debug mode
+npx playwright test --debug
+```
+
+**Test Configuration**:
+- **Base URL**: `http://localhost:4000`
+- **Browser**: Chromium
+- **Timeout**: 30 seconds per test
+- **Retries**: 1 retry on failure
+- **Test Directory**: `e2e/tests/`
+
+**What's Tested**:
+- Home page loading and title
+- Verse display from API
+- Amen button visibility
+- Admin page loading
+- API health endpoint
+- Verse API endpoint responses
+
+### Running Tests in Other Environments
+
+#### Using Docker Compose
+
+For a consistent test environment that matches CI/CD, use Docker Compose:
+
+```bash
+# Start services
+docker compose up -d --build
+
+# Wait for services to be healthy
+for i in $(seq 1 30); do
+  if curl -sf http://localhost:4000/api/health > /dev/null 2>&1; then
+    echo "Services are healthy"
+    break
+  fi
+  echo "Waiting... ($i/30)"
+  sleep 2
+done
+
+# Run E2E tests
+cd e2e
+npm install
+npx playwright install --with-deps chromium
+npx playwright test
+
+# Stop services when done
+docker compose down
+```
+
+#### CI/CD Environment
+
+Tests run automatically in GitHub Actions on every push and pull request. The CI workflow (`.github/workflows/ci.yml`) runs:
+
+1. **Backend Tests**: Builds and runs .NET unit tests
+2. **Frontend Tests**: Runs linting and type checking
+3. **E2E Tests**: Starts services with Docker Compose, waits for health checks, then runs Playwright tests
+
+To manually trigger CI tests, push to any branch or create a pull request.
+
+**CI Test Execution**:
+
+```yaml
+# Backend tests
+dotnet build --configuration Release
+dotnet test --no-build --configuration Release --verbosity normal
+
+# Frontend tests
+cd frontend
+npm ci
+npm run lint
+npm run build
+
+# E2E tests
+docker compose up -d --build
+# Wait for health check
+cd e2e
+npm ci
+npx playwright install --with-deps chromium
+npx playwright test
+docker compose down
+```
+
+### Troubleshooting
+
+**E2E tests fail with connection errors**:
+- Ensure Docker Desktop is running
+- Verify services are accessible at `http://localhost:4000`
+- Check that ports 4000 and 8080 are not in use by other applications
+
+**Playwright browsers not found**:
+- Run `npx playwright install chromium` in the `e2e` directory
+- For CI environments, use `npx playwright install --with-deps chromium`
+
+**Backend tests fail**:
+- Ensure .NET SDK 10.0+ is installed
+- Run `dotnet restore` in the solution root
+- Check that all dependencies are restored
+
 ## Publishing to AWS
 
 ### Initial AWS Setup

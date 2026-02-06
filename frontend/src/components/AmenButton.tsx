@@ -1,5 +1,5 @@
 import { Heart } from 'lucide-react'
-import { useLanguage } from '../contexts/LanguageContext'
+import { useLanguage } from '../hooks/useLanguage'
 
 interface AmenButtonProps {
   onClick: () => void

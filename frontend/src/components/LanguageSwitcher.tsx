@@ -1,5 +1,5 @@
 import { Languages } from 'lucide-react'
-import { useLanguage } from '../contexts/LanguageContext'
+import { useLanguage } from '../hooks/useLanguage'
 
 const langOrder = ['en', 'am', 'fi'] as const
 const langLabels: Record<string, string> = { en: 'EN', am: 'አማ', fi: 'FI' }

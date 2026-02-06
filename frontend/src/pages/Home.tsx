@@ -6,7 +6,7 @@ import Celebration from '../components/Celebration'
 import SuccessView from '../components/SuccessView'
 import ReflectionView from '../components/ReflectionView'
 import { InstallPrompt } from '../components/InstallPrompt'
-import { useLanguage } from '../contexts/LanguageContext'
+import { useLanguage } from '../hooks/useLanguage'
 
 interface Verse {
   text: string

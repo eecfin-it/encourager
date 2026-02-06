@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { Heart } from 'lucide-react'
-import { useLanguage } from '../contexts/LanguageContext'
+import { useLanguage } from '../hooks/useLanguage'
 
 interface SuccessViewProps {
   onNext: () => void

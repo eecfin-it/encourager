@@ -1,7 +1,7 @@
 import QRCode from 'react-qr-code'
 import { ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useLanguage } from '../contexts/LanguageContext'
+import { useLanguage } from '../hooks/useLanguage'
 
 export default function Admin() {
   const appUrl = window.location.origin

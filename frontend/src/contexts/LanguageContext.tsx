@@ -1,13 +1,13 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useState, type ReactNode } from 'react'
 import { translations, type Language, type Translations } from '../i18n/translations'
 
-interface LanguageContextValue {
+export interface LanguageContextValue {
   language: Language
   setLanguage: (lang: Language) => void
   t: Translations
 }
 
-const LanguageContext = createContext<LanguageContextValue | null>(null)
+export const LanguageContext = createContext<LanguageContextValue | null>(null)
 
 function getInitialLanguage(): Language {
   const stored = localStorage.getItem('lang')
@@ -28,10 +28,4 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       {children}
     </LanguageContext.Provider>
   )
-}
-
-export function useLanguage() {
-  const ctx = useContext(LanguageContext)
-  if (!ctx) throw new Error('useLanguage must be used within LanguageProvider')
-  return ctx
 }

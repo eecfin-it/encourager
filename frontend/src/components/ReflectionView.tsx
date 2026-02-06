@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Moon } from 'lucide-react'
 import VerseDisplay from './VerseDisplay'
-import { useLanguage } from '../contexts/LanguageContext'
+import { useLanguage } from '../hooks/useLanguage'
 
 interface ReflectionViewProps {
   verse: { text: string; reference: string }
