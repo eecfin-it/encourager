@@ -5,6 +5,7 @@ import AmenButton from '../components/AmenButton'
 import Celebration from '../components/Celebration'
 import SuccessView from '../components/SuccessView'
 import ReflectionView from '../components/ReflectionView'
+import { InstallPrompt } from '../components/InstallPrompt'
 import { useLanguage } from '../contexts/LanguageContext'
 
 interface Verse {
@@ -158,6 +159,8 @@ export default function Home() {
       <footer className="mt-8 text-center">
         <p className="text-xs text-eccfin-slate">{t.footerCredit}</p>
       </footer>
+
+      <InstallPrompt />
     </div>
   )
 }

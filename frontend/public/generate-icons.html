@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate PWA Icons</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    canvas {
+      border: 1px solid #ddd;
+      margin: 10px;
+    }
+    button {
+      background: #1a374f;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #2a4f6f;
+    }
+    .icon-preview {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>PWA Icon Generator</h1>
+  <p>This tool generates placeholder PWA icons using the ECCFIN brand colors.</p>
+  
+  <div class="icon-preview">
+    <div>
+      <canvas id="icon192" width="192" height="192"></canvas>
+      <br>
+      <button onclick="downloadIcon('icon192', 'pwa-192x192.png')">Download 192x192</button>
+    </div>
+    <div>
+      <canvas id="icon512" width="512" height="512"></canvas>
+      <br>
+      <button onclick="downloadIcon('icon512', 'pwa-512x512.png')">Download 512x512</button>
+    </div>
+  </div>
+
+  <script>
+    function drawIcon(canvasId, size) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      
+      // Background with brand color
+      ctx.fillStyle = '#1a374f';
+      ctx.fillRect(0, 0, size, size);
+      
+      // Add padding for maskable icon (20% margin)
+      const padding = size * 0.2;
+      const centerX = size / 2;
+      const centerY = size / 2;
+      const radius = (size - padding * 2) / 2;
+      
+      // Draw circle background for icon content
+      ctx.fillStyle = '#fdfbca';
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Draw "A" text (for Amen)
+      ctx.fillStyle = '#1a374f';
+      ctx.font = `bold ${size * 0.4}px serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('A', centerX, centerY);
+    }
+    
+    function downloadIcon(canvasId, filename) {
+      const canvas = document.getElementById(canvasId);
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+    
+    // Generate icons on load
+    window.onload = function() {
+      drawIcon('icon192', 192);
+      drawIcon('icon512', 512);
+    };
+  </script>
+</body>
+</html>
