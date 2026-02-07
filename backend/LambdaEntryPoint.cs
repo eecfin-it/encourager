@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Encourager.Api;
 
-public class LambdaEntryPoint : APIGatewayHttpApiV2ProxyFunction
+public class LambdaEntryPoint : APIGatewayProxyFunction
 {
     protected override void Init(IWebHostBuilder builder)
     {
