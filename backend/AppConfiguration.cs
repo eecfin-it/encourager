@@ -35,8 +35,9 @@ public static class AppConfiguration
 
     public static void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet("/api/verse/random", (VerseService verseService, string? lang, int? index) =>
+        endpoints.MapGet("/api/verse/random", (HttpContext httpContext, VerseService verseService, string? lang, int? index) =>
         {
+            httpContext.Response.Headers.CacheControl = "no-store";
             var result = index.HasValue
                 ? verseService.GetByIndex(lang ?? "en", index.Value)
                 : verseService.GetRandom(lang ?? "en");

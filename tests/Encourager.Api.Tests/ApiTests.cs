@@ -126,6 +126,35 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.NotEqual(en.Text, fi.Text);
     }
 
+    // --- Randomness ---
+
+    [Fact]
+    public async Task GetRandomVerse_MultipleCalls_ReturnsVariedResults()
+    {
+        var indices = new HashSet<int>();
+        for (var i = 0; i < 30; i++)
+        {
+            var body = await _client.GetFromJsonAsync<VerseResponse>("/api/verse/random?lang=en");
+            Assert.NotNull(body);
+            indices.Add(body.Index);
+        }
+
+        Assert.True(indices.Count > 1, $"Expected varied verse indices over 30 calls, but got only {indices.Count} distinct index(es): [{string.Join(", ", indices)}]");
+    }
+
+    // --- Cache headers ---
+
+    [Fact]
+    public async Task GetRandomVerse_ResponseContainsNoCacheHeader()
+    {
+        var response = await _client.GetAsync("/api/verse/random?lang=en");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var actual = response.Headers.CacheControl;
+        Assert.NotNull(actual);
+        Assert.True(actual.NoStore, "Expected Cache-Control: no-store header on random verse endpoint");
+    }
+
     // --- Response DTOs ---
 
     private record HealthResponse(string Status, DateTime Timestamp);
