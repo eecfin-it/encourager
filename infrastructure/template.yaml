@@ -147,8 +147,8 @@ Resources:
                 - Authorization
                 - CloudFront-Forwarded-Proto
             MinTTL: 0
-            DefaultTTL: 300
-            MaxTTL: 3600
+            DefaultTTL: 0
+            MaxTTL: 0
         Enabled: true
         Comment: Encourager App Distribution
         DefaultRootObject: index.html
