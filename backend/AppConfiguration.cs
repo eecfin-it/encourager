@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Encourager.Api.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -26,6 +27,10 @@ public static class AppConfiguration
             });
         });
         services.AddSingleton<VerseService>();
+        services.ConfigureHttpJsonOptions(options =>
+        {
+            options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        });
     }
 
     public static void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
