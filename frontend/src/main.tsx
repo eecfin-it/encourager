@@ -5,6 +5,7 @@ import { registerSW } from 'virtual:pwa-register'
 import './index.css'
 import Home from './pages/Home'
 import Admin from './pages/Admin'
+import NotFound from './pages/NotFound'
 import { LanguageProvider } from './contexts/LanguageContext'
 import LanguageSwitcher from './components/LanguageSwitcher'
 
@@ -26,7 +27,8 @@ createRoot(document.getElementById('root')!).render(
         <LanguageSwitcher />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/qr" element={<Admin />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </LanguageProvider>

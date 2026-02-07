@@ -14,6 +14,9 @@ export interface Translations {
   nextBlessingAt: string
   churchName: string
   footerCredit: string
+  pageNotFound: string
+  pageNotFoundMessage: string
+  goHome: string
 }
 
 const en: Translations = {
@@ -29,7 +32,10 @@ const en: Translations = {
   alreadyReceived: 'You have already received your Word for today. May it stay in your heart.',
   nextBlessingAt: 'Next blessing available at midnight.',
   churchName: 'Ethiopian Evangelical Church in Finland',
-  footerCredit: 'By ECCFIN Media Team',
+  footerCredit: 'By EECFIN Media Team',
+  pageNotFound: 'Page Not Found',
+  pageNotFoundMessage: 'The page you are looking for does not exist.',
+  goHome: 'Go Home',
 }
 
 const am: Translations = {
@@ -45,7 +51,10 @@ const am: Translations = {
   alreadyReceived: 'የዛሬውን ቃል አስቀድመው ተቀብለዋል። በልብዎ ይኑር።',
   nextBlessingAt: 'ቀጣይ በረከት ከእኩለ ሌሊት በኋላ ይገኛል።',
   churchName: 'የኢትዮጵያ ወንጌላዊት ቤተክርስቲያን በፊንላንድ',
-  footerCredit: 'By ECCFIN Media Team',
+  footerCredit: 'በ EECFIN የሚዲያ ቡድን የተዘጋጀ',
+  pageNotFound: 'ገጽ አልተገኘም',
+  pageNotFoundMessage: 'የሚፈልጉት ገጽ የለም።',
+  goHome: 'ወደ መነሻ ይሂዱ',
 }
 
 const fi: Translations = {
@@ -61,7 +70,10 @@ const fi: Translations = {
   alreadyReceived: 'Olet jo saanut sanasi tälle päivälle. Säilytä se sydämessäsi.',
   nextBlessingAt: 'Seuraava siunaus on saatavilla keskiyöllä.',
   churchName: 'Etiopian evankelinen kirkko Suomessa',
-  footerCredit: 'By ECCFIN Media Team',
+  footerCredit: 'EECFINin mediatiimin tuottama',
+  pageNotFound: 'Sivua ei löytynyt',
+  pageNotFoundMessage: 'Etsimääsi sivua ei ole olemassa.',
+  goHome: 'Palaa kotiin',
 }
 
 export const translations: Record<Language, Translations> = { en, am, fi }

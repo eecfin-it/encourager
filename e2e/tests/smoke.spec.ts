@@ -20,10 +20,26 @@ test.describe('Home page', () => {
   });
 });
 
-test.describe('Admin page', () => {
-  test('loads the admin page', async ({ page }) => {
-    await page.goto('/admin');
+test.describe('QR page', () => {
+  test('loads the QR page', async ({ page }) => {
+    await page.goto('/qr');
     await expect(page).toHaveTitle(/Amen/);
+  });
+});
+
+test.describe('404 Not Found', () => {
+  test('shows 404 page for invalid routes', async ({ page }) => {
+    await page.goto('/invalid-route-that-does-not-exist');
+    await expect(page.getByText(/404/)).toBeVisible();
+    await expect(page.getByText(/Page Not Found|ገጽ አልተገኘም|Sivua ei löytynyt/)).toBeVisible();
+  });
+
+  test('has a link back to home from 404 page', async ({ page }) => {
+    await page.goto('/some-random-page');
+    const homeLink = page.getByRole('link', { name: /Go Home|ወደ መነሻ ይሂዱ|Palaa kotiin/i });
+    await expect(homeLink).toBeVisible();
+    await homeLink.click();
+    await expect(page).toHaveURL('/');
   });
 });
 
