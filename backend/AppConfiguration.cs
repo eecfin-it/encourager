@@ -26,7 +26,10 @@ public static class AppConfiguration
                 }
             });
         });
-        services.AddSingleton<VerseService>();
+        services.AddSingleton<IVerseLookupService, VerseLookupService>();
+        services.AddSingleton<IVerseLanguageService, VerseLanguageService>();
+        services.AddSingleton<IVerseFormatterService, VerseFormatterService>();
+        services.AddSingleton<IVerseCoordinatorService, VerseCoordinatorService>();
         services.ConfigureHttpJsonOptions(options =>
         {
             options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
@@ -35,13 +38,13 @@ public static class AppConfiguration
 
     public static void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet("/api/verse/random", (HttpContext httpContext, VerseService verseService, string? lang, int? index) =>
+        endpoints.MapGet("/api/verse/random", (HttpContext httpContext, IVerseCoordinatorService coordinator, string? lang, int? verseId) =>
         {
             httpContext.Response.Headers.CacheControl = "no-store";
-            var result = index.HasValue
-                ? verseService.GetByIndex(lang ?? "en", index.Value)
-                : verseService.GetRandom(lang ?? "en");
-            return Results.Ok(new { result.Verse.Text, result.Verse.Reference, result.Index });
+            var result = verseId.HasValue
+                ? coordinator.GetVerseByVerseId(verseId.Value, lang ?? "en")
+                : coordinator.GetRandomVerse(lang ?? "en");
+            return Results.Ok(result);
         })
         .WithName("GetRandomVerse");
 

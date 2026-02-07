@@ -5,7 +5,7 @@ import VerseDisplay from './VerseDisplay'
 import { useLanguage } from '../hooks/useLanguage'
 
 interface ReflectionViewProps {
-  verse: { text: string; reference: string }
+  verse: { text: string; book: string; chapter: number; verseNumber: string }
 }
 
 function getTimeUntilMidnight() {
@@ -47,7 +47,12 @@ export default function ReflectionView({ verse }: ReflectionViewProps) {
         </p>
 
         <div className="w-full">
-          <VerseDisplay text={verse.text} reference={verse.reference} />
+          <VerseDisplay
+            text={verse.text}
+            book={verse.book}
+            chapter={verse.chapter}
+            verseNumber={verse.verseNumber}
+          />
         </div>
 
         <div className="flex flex-col items-center gap-2 mt-4">

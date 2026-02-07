@@ -47,8 +47,10 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
         var body = await _client.GetFromJsonAsync<VerseResponse>("/api/verse/random");
         Assert.NotNull(body);
         Assert.False(string.IsNullOrWhiteSpace(body.Text));
-        Assert.False(string.IsNullOrWhiteSpace(body.Reference));
-        Assert.True(body.Index >= 0);
+        Assert.False(string.IsNullOrWhiteSpace(body.Book));
+        Assert.True(body.Chapter > 0);
+        Assert.False(string.IsNullOrWhiteSpace(body.VerseNumber));
+        Assert.True(body.VerseId >= 1);
     }
 
     [Theory]
@@ -61,7 +63,8 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
             $"/api/verse/random?lang={lang}");
         Assert.NotNull(body);
         Assert.False(string.IsNullOrWhiteSpace(body.Text));
-        Assert.False(string.IsNullOrWhiteSpace(body.Reference));
+        Assert.False(string.IsNullOrWhiteSpace(body.Book));
+        Assert.Equal(lang, body.Language);
     }
 
     [Fact]
@@ -71,59 +74,87 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
             "/api/verse/random?lang=xx");
         Assert.NotNull(body);
         Assert.False(string.IsNullOrWhiteSpace(body.Text));
+        Assert.Equal("en", body.Language);
     }
 
-    // --- Index-based verse ---
+    // --- VerseId-based verse ---
 
     [Fact]
-    public async Task GetVerseByIndex_ReturnsCorrectIndex()
+    public async Task GetVerseByVerseId_ReturnsCorrectVerseId()
     {
         var body = await _client.GetFromJsonAsync<VerseResponse>(
-            "/api/verse/random?index=0");
+            "/api/verse/random?verseId=1");
         Assert.NotNull(body);
-        Assert.Equal(0, body.Index);
+        Assert.Equal(1, body.VerseId);
     }
 
     [Fact]
-    public async Task GetVerseByIndex_SameIndexSameVerse()
+    public async Task GetVerseByVerseId_SameIdSameVerse()
     {
         var body1 = await _client.GetFromJsonAsync<VerseResponse>(
-            "/api/verse/random?lang=en&index=5");
+            "/api/verse/random?lang=en&verseId=5");
         var body2 = await _client.GetFromJsonAsync<VerseResponse>(
-            "/api/verse/random?lang=en&index=5");
+            "/api/verse/random?lang=en&verseId=5");
         Assert.Equal(body1!.Text, body2!.Text);
-        Assert.Equal(body1.Reference, body2.Reference);
+        Assert.Equal(body1.Book, body2.Book);
     }
 
     [Fact]
-    public async Task GetVerseByIndex_NegativeIndex_ClampedToZero()
+    public async Task GetVerseByVerseId_NegativeId_ClampedToOne()
     {
         var body = await _client.GetFromJsonAsync<VerseResponse>(
-            "/api/verse/random?index=-5");
+            "/api/verse/random?verseId=-5");
         Assert.NotNull(body);
-        Assert.Equal(0, body.Index);
+        Assert.Equal(1, body.VerseId);
     }
 
     [Fact]
-    public async Task GetVerseByIndex_OverflowIndex_ClampedToMax()
+    public async Task GetVerseByVerseId_OverflowId_ClampedToMax()
     {
         var body = await _client.GetFromJsonAsync<VerseResponse>(
-            "/api/verse/random?index=9999");
+            "/api/verse/random?verseId=9999");
         Assert.NotNull(body);
-        Assert.True(body.Index < 9999);
-        Assert.True(body.Index >= 0);
+        Assert.True(body.VerseId < 9999);
+        Assert.True(body.VerseId >= 1);
     }
 
     [Fact]
-    public async Task GetVerseByIndex_WithLang_ReturnsDifferentText()
+    public async Task GetVerseByVerseId_WithLang_ReturnsDifferentText()
     {
         var en = await _client.GetFromJsonAsync<VerseResponse>(
-            "/api/verse/random?lang=en&index=0");
+            "/api/verse/random?lang=en&verseId=1");
         var fi = await _client.GetFromJsonAsync<VerseResponse>(
-            "/api/verse/random?lang=fi&index=0");
+            "/api/verse/random?lang=fi&verseId=1");
         Assert.NotNull(en);
         Assert.NotNull(fi);
         Assert.NotEqual(en.Text, fi.Text);
+    }
+
+    // --- Language field ---
+
+    [Fact]
+    public async Task GetRandomVerse_ResponseIncludesLanguageField()
+    {
+        var body = await _client.GetFromJsonAsync<VerseResponse>(
+            "/api/verse/random?lang=fi");
+        Assert.NotNull(body);
+        Assert.Equal("fi", body.Language);
+    }
+
+    // --- Translations field ---
+
+    [Fact]
+    public async Task GetRandomVerse_ResponseIncludesAllTranslations()
+    {
+        var body = await _client.GetFromJsonAsync<VerseResponse>(
+            "/api/verse/random?lang=en&verseId=1");
+        Assert.NotNull(body);
+        Assert.NotNull(body.Translations);
+        Assert.Equal(3, body.Translations.Count);
+        Assert.True(body.Translations.ContainsKey("en"));
+        Assert.True(body.Translations.ContainsKey("fi"));
+        Assert.True(body.Translations.ContainsKey("am"));
+        Assert.Equal(body.Text, body.Translations["en"]);
     }
 
     // --- Randomness ---
@@ -131,15 +162,15 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
     [Fact]
     public async Task GetRandomVerse_MultipleCalls_ReturnsVariedResults()
     {
-        var indices = new HashSet<int>();
+        var ids = new HashSet<int>();
         for (var i = 0; i < 30; i++)
         {
             var body = await _client.GetFromJsonAsync<VerseResponse>("/api/verse/random?lang=en");
             Assert.NotNull(body);
-            indices.Add(body.Index);
+            ids.Add(body.VerseId);
         }
 
-        Assert.True(indices.Count > 1, $"Expected varied verse indices over 30 calls, but got only {indices.Count} distinct index(es): [{string.Join(", ", indices)}]");
+        Assert.True(ids.Count > 1, $"Expected varied verse IDs over 30 calls, but got only {ids.Count} distinct ID(s): [{string.Join(", ", ids)}]");
     }
 
     // --- Cache headers ---
@@ -158,5 +189,5 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
     // --- Response DTOs ---
 
     private record HealthResponse(string Status, DateTime Timestamp);
-    private record VerseResponse(string Text, string Reference, int Index);
+    private record VerseResponse(int VerseId, string Book, int Chapter, string VerseNumber, string Text, string Language, Dictionary<string, string> Translations);
 }

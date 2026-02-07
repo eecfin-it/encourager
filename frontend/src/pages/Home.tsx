@@ -9,14 +9,29 @@ import { InstallPrompt } from '../components/InstallPrompt'
 import { useLanguage } from '../hooks/useLanguage'
 
 interface Verse {
+  verseId: number
+  book: string
+  chapter: number
+  verseNumber: string
   text: string
-  reference: string
-  index: number
+  language: string
+  translations: Record<string, string>
 }
 
 interface BlessingData {
   timestamp: string
   verse: Verse
+}
+
+interface LegacyVerse {
+  text: string
+  reference: string
+  index: number
+}
+
+interface LegacyBlessingData {
+  timestamp: string
+  verse: LegacyVerse
 }
 
 const STORAGE_KEY = 'last_blessing_data'
@@ -31,12 +46,38 @@ function isSameDay(iso: string): boolean {
   )
 }
 
+function migrateLegacyData(raw: string): BlessingData | null {
+  try {
+    const data: LegacyBlessingData = JSON.parse(raw)
+    if (!data.timestamp || !data.verse || !isSameDay(data.timestamp)) return null
+    // Check if this is legacy format (has reference/index but no verseId)
+    if ('reference' in data.verse && !('verseId' in data.verse)) {
+      const legacy = data.verse as LegacyVerse
+      return {
+        timestamp: data.timestamp,
+        verse: {
+          verseId: legacy.index + 1,
+          book: '',
+          chapter: 0,
+          verseNumber: '0',
+          text: legacy.text,
+          language: 'en',
+          translations: {}
+        }
+      }
+    }
+    return null
+  } catch { return null }
+}
+
 function getSavedBlessing(): BlessingData | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
-    const data: BlessingData = JSON.parse(raw)
-    if (data.timestamp && data.verse && isSameDay(data.timestamp)) return data
+    const data = JSON.parse(raw) as BlessingData
+    if (data.timestamp && data.verse && data.verse.verseId && isSameDay(data.timestamp)) return data
+    // Try legacy migration
+    return migrateLegacyData(raw)
   } catch { /* ignore corrupt data */ }
   return null
 }
@@ -48,21 +89,21 @@ export default function Home() {
   const [lockedToday, setLockedToday] = useState(false)
   const { language, t } = useLanguage()
   const skipInitialFetch = useRef(false)
-  const savedIndex = useRef<number | null>(null)
+  const savedVerseId = useRef<number | null>(null)
 
   // On mount: check if the user already blessed today
   useEffect(() => {
     const saved = getSavedBlessing()
     if (saved) {
       setVerse(saved.verse)
-      savedIndex.current = saved.verse.index
+      savedVerseId.current = saved.verse.verseId
       setLockedToday(true)
       setLoading(false)
       skipInitialFetch.current = true
     }
   }, [])
 
-  // Fetch a verse on mount (if not locked) and whenever language changes
+  // Handle language changes — use cached translations (instant) or fetch if needed
   useEffect(() => {
     // Skip the very first run if we loaded a verse from storage
     if (skipInitialFetch.current) {
@@ -70,10 +111,20 @@ export default function Home() {
       return
     }
 
-    // If a verse is already displayed, re-fetch the SAME verse (by index) in the new language
-    const currentIndex = savedIndex.current ?? verse?.index
-    if (currentIndex !== undefined && currentIndex !== null && currentIndex >= 0) {
-      fetch(`/api/verse/random?lang=${language}&index=${currentIndex}`)
+    // If we have cached translations for this verse, switch instantly (no network call)
+    if (verse?.translations && verse.translations[language]) {
+      setVerse(prev => prev ? {
+        ...prev,
+        text: prev.translations[language],
+        language
+      } : null)
+      return
+    }
+
+    // If a verse is already displayed but has no translations cache, re-fetch by verseId
+    const currentVerseId = savedVerseId.current ?? verse?.verseId
+    if (currentVerseId !== undefined && currentVerseId !== null && currentVerseId >= 1) {
+      fetch(`/api/verse/random?lang=${language}&verseId=${currentVerseId}`)
         .then(res => res.json())
         .then((data: Verse) => setVerse(data))
         .catch(() => {})
@@ -85,7 +136,15 @@ export default function Home() {
     fetch(`/api/verse/random?lang=${language}`)
       .then(res => res.json())
       .then((data: Verse) => setVerse(data))
-      .catch(() => setVerse({ text: t.fallbackVerse, reference: t.fallbackReference, index: -1 }))
+      .catch(() => setVerse({
+        verseId: 0,
+        book: '',
+        chapter: 0,
+        verseNumber: '0',
+        text: t.fallbackVerse,
+        language,
+        translations: {}
+      }))
       .finally(() => setLoading(false))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language])
@@ -96,7 +155,7 @@ export default function Home() {
       const data: BlessingData = { timestamp: new Date().toISOString(), verse }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
     } catch { /* quota exceeded — still show success, just won't persist */ }
-    savedIndex.current = verse.index
+    savedVerseId.current = verse.verseId
     setLockedToday(true)
     setAccepted(true)
   }
@@ -143,7 +202,12 @@ export default function Home() {
                 </div>
               ) : (
                 verse && (
-                  <VerseDisplay text={verse.text} reference={verse.reference} />
+                  <VerseDisplay
+                    text={verse.text}
+                    book={verse.book}
+                    chapter={verse.chapter}
+                    verseNumber={verse.verseNumber}
+                  />
                 )
               )}
 

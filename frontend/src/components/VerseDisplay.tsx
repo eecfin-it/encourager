@@ -3,13 +3,19 @@ import { Sparkles } from 'lucide-react'
 
 interface VerseDisplayProps {
   text: string
-  reference: string
+  book: string
+  chapter: number
+  verseNumber: string
 }
 
-export default function VerseDisplay({ text, reference }: VerseDisplayProps) {
+export default function VerseDisplay({ text, book, chapter, verseNumber }: VerseDisplayProps) {
+  const reference = book && chapter > 0
+    ? `${book} ${chapter}:${verseNumber}`
+    : ''
+
   return (
     <motion.div
-      key={reference}
+      key={reference || text}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -21,9 +27,11 @@ export default function VerseDisplay({ text, reference }: VerseDisplayProps) {
         &ldquo;{text}&rdquo;
       </p>
 
-      <p className="mt-5 text-sm font-semibold text-eccfin-slate tracking-wide uppercase">
-        &mdash; {reference}
-      </p>
+      {reference && (
+        <p className="mt-5 text-sm font-semibold text-eccfin-slate tracking-wide uppercase">
+          &mdash; {reference}
+        </p>
+      )}
     </motion.div>
   )
 }

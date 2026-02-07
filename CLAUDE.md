@@ -56,20 +56,28 @@ dotnet test --verbosity normal              # verbose output
   - `Program.cs` — Kestrel web server for local development
   - `LambdaEntryPoint.cs` — AWS Lambda container entry point
   - `AppConfiguration.cs` — shared DI service registration and endpoint mapping used by both
-- **VerseService** (singleton):
-  - Serves verses from static in-memory data classes: `EnglishVerses`, `AmharicVerses`, `FinnishVerses`
-  - Each data class contains ~50 verses with `Text`, `Reference`, and `Index` properties
-  - `GetRandom(lang)` returns random verse; `GetByIndex(lang, index)` returns specific verse
+- **Multi-Agent Service Layer** (all singletons):
+  - `IVerseCoordinatorService` — orchestrates Lookup → Language → Formatter sub-services
+  - `IVerseLookupService` — random or ID-based verse selection, returns `VerseMetadata`
+  - `IVerseLanguageService` — language-specific text retrieval with English fallback, returns `VerseText`
+  - `IVerseFormatterService` — assembles `VerseResponse` from metadata + text
+- **Data Layer**:
+  - `VerseRepository` — static indexed data from `EnglishVerses`, `AmharicVerses`, `FinnishVerses` arrays
+  - `ReferenceParser` — parses Bible references ("1 Peter 5:7") into structured metadata (Book, Chapter, VerseNumber)
+  - Each data class contains ~50 verses with `Text` and `Reference` properties
 - **API Endpoints**:
-  - `GET /api/verse/random?lang={en|am|fi}&index={0-49}` — random or indexed verse
+  - `GET /api/verse/random?lang={en|am|fi}&verseId={1-50}` — random or specific verse
   - `GET /api/health` — health check with timestamp
+- **API Response**: `{ verseId, book, chapter, verseNumber, text, language }`
 - **CORS**: Controlled by `ALLOWED_ORIGIN` env var (defaults to `*`, restrict in production)
+- **VerseScraper Tool** (`tools/VerseScraper/`): Development tool that scrapes English verses from biblestudytools.com, fetches Finnish/Amharic translations via free Bible APIs, deduplicates, and updates the static data files
 
 ### Frontend (React 19 + Vite + Tailwind CSS 4)
 - **TypeScript**: Strict mode enabled, no `any` types allowed
 - **State Management**:
   - `LanguageContext` — global language state (en/am/fi), persisted to `localStorage.lang`
-  - Daily blessing state in `localStorage.last_blessing_data`: `{ timestamp: ISO8601, verse: { text, reference, index } }`
+  - Daily blessing state in `localStorage.last_blessing_data`: `{ timestamp: ISO8601, verse: { verseId, book, chapter, verseNumber, text, language } }`
+  - Legacy localStorage migration: auto-converts old `{ text, reference, index }` format to new format
   - Blessing locks after "Amen" click until midnight; date comparison checks year-month-day match
 - **Routing**: React Router v7 with two routes:
   - `/` — Home page (verse display, Amen button, reflection view if already blessed today)
@@ -135,6 +143,7 @@ Detailed guides live in `Agents/` — see `Agents/README.md` for index:
 - `Agents/guides/frontend-setup.md` — React 19 setup and component structure
 - `Agents/guides/pwa-implementation.md` — Progressive Web App setup
 - `Agents/guides/admin-qr-generator.md` — QR code generation for admin
+- `Agents/guides/bible_verse_multiagent_design.md` — multi-agent service layer design and ScraperAgent
 
 ### Important: Auto-Documentation Rule
 

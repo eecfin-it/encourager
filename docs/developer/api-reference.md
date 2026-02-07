@@ -2,7 +2,7 @@
 
 ## Base URL
 
-**Local Development:** `http://localhost:5226`  
+**Local Development:** `http://localhost:5226`
 **Production:** `https://<api-gateway-url>/Prod`
 
 ## Endpoints
@@ -18,7 +18,7 @@ Returns a random Bible verse in the specified language.
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
 | `lang` | string | No | `en` | Language code: `en`, `am`, or `fi` |
-| `index` | integer | No | random | Specific verse index (0-49) |
+| `verseId` | integer | No | random | Specific verse ID (1-50) |
 
 **Request Examples:**
 
@@ -29,8 +29,8 @@ GET /api/verse/random?lang=en
 # Random verse in Amharic
 GET /api/verse/random?lang=am
 
-# Specific verse by index
-GET /api/verse/random?lang=en&index=23
+# Specific verse by ID
+GET /api/verse/random?lang=en&verseId=24
 
 # Random verse (defaults to English)
 GET /api/verse/random
@@ -40,9 +40,12 @@ GET /api/verse/random
 
 ```json
 {
+  "verseId": 1,
+  "book": "Jeremiah",
+  "chapter": 29,
+  "verseNumber": "11",
   "text": "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.",
-  "reference": "Jeremiah 29:11",
-  "index": 23
+  "language": "en"
 }
 ```
 
@@ -50,14 +53,17 @@ GET /api/verse/random
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `text` | string | The verse text |
-| `reference` | string | Bible reference (e.g., "Jeremiah 29:11") |
-| `index` | integer | Verse index (0-49) for consistent retrieval |
+| `verseId` | integer | Verse ID (1-50) for consistent retrieval across languages |
+| `book` | string | Bible book name (e.g., "Jeremiah", "1 Peter") |
+| `chapter` | integer | Chapter number |
+| `verseNumber` | string | Verse number or range (e.g., "11", "24-25") |
+| `text` | string | The verse text in the requested language |
+| `language` | string | Language code of the returned text (en, am, or fi) |
 
 **Status Codes:**
 
 - `200 OK`: Success
-- `400 Bad Request`: Invalid language or index parameter
+- `400 Bad Request`: Invalid language or verseId parameter
 - `500 Internal Server Error`: Server error
 
 **Example Usage:**
@@ -66,12 +72,15 @@ GET /api/verse/random
 // Fetch random verse
 const response = await fetch('/api/verse/random?lang=en');
 const verse = await response.json();
-console.log(verse.text);      // Verse text
-console.log(verse.reference); // Bible reference
-console.log(verse.index);     // Verse index
+console.log(verse.text);        // Verse text
+console.log(verse.book);        // Bible book name
+console.log(verse.chapter);     // Chapter number
+console.log(verse.verseNumber); // Verse number
+console.log(verse.verseId);     // Verse ID
+console.log(verse.language);    // Language code
 
-// Fetch specific verse by index
-const specificVerse = await fetch('/api/verse/random?lang=en&index=23');
+// Fetch specific verse by ID
+const specificVerse = await fetch('/api/verse/random?lang=en&verseId=24');
 const data = await specificVerse.json();
 ```
 
@@ -126,29 +135,13 @@ console.log(health.timestamp); // ISO8601 timestamp
 
 ## Error Responses
 
-### Invalid Language
+### Unknown Language
 
-**Request:** `GET /api/verse/random?lang=invalid`
+Unknown languages fall back to English silently (returns `"language": "en"`).
 
-**Response:** `400 Bad Request`
+### Invalid VerseId
 
-```json
-{
-  "error": "Invalid language code"
-}
-```
-
-### Invalid Index
-
-**Request:** `GET /api/verse/random?index=100`
-
-**Response:** `400 Bad Request`
-
-```json
-{
-  "error": "Index out of range"
-}
-```
+Out-of-range verse IDs are clamped to valid range (1 to max). Negative values clamp to 1, overflow values clamp to the maximum verse ID.
 
 ### Server Error
 
@@ -208,7 +201,7 @@ Future versions may use:
 curl http://localhost:5226/api/verse/random?lang=en
 
 # Specific verse
-curl http://localhost:5226/api/verse/random?lang=en&index=23
+curl http://localhost:5226/api/verse/random?lang=en&verseId=24
 
 # Health check
 curl http://localhost:5226/api/health
@@ -220,7 +213,7 @@ curl http://localhost:5226/api/health
 2. Set URL: `http://localhost:5226/api/verse/random`
 3. Add query parameters:
    - `lang`: `en`
-   - `index`: `23` (optional)
+   - `verseId`: `24` (optional)
 4. Send request
 
 ### Using Browser
@@ -236,30 +229,35 @@ fetch('/api/verse/random?lang=en')
 
 ### Backend Implementation
 
-**Service:** `VerseService` (singleton)
+**Service Layer:** Multi-agent architecture with four services:
 
-**Methods:**
-- `GetRandom(string lang)`: Returns random verse
-- `GetByIndex(string lang, int index)`: Returns specific verse
+| Service | Interface | Role |
+|---------|-----------|------|
+| **VerseCoordinatorService** | `IVerseCoordinatorService` | Orchestrates sub-services for verse requests |
+| **VerseLookupService** | `IVerseLookupService` | Selects random or specific verse by ID |
+| **VerseLanguageService** | `IVerseLanguageService` | Returns verse text in requested language |
+| **VerseFormatterService** | `IVerseFormatterService` | Assembles final response from metadata + text |
 
-**Data Sources:**
-- `EnglishVerses.Verses`: Array of ~50 English verses
-- `AmharicVerses.Verses`: Array of ~50 Amharic verses
-- `FinnishVerses.Verses`: Array of ~50 Finnish verses
+**Data Layer:**
+- `VerseRepository` — static class that indexes existing verse data by VerseId
+- `ReferenceParser` — parses "Book Chapter:Verse" references into structured metadata
+- `EnglishVerses`, `AmharicVerses`, `FinnishVerses` — static verse arrays (~50 verses each)
 
-**Random Selection:**
-- Uses `Random.Shared.Next()` for random index
-- Ensures uniform distribution
+**Request Flow:**
+1. Endpoint receives request → calls `IVerseCoordinatorService`
+2. Coordinator → `IVerseLookupService.GetRandom()` or `.GetByVerseId(id)` → returns `VerseMetadata`
+3. Coordinator → `IVerseLanguageService.GetText(verseId, lang)` → returns `VerseText`
+4. Coordinator → `IVerseFormatterService.Format(metadata, text)` → returns `VerseResponse`
 
 ### Frontend Integration
 
 **Fetch Pattern:**
 ```typescript
-const fetchVerse = async (lang: string, index?: number) => {
-  const url = index !== undefined
-    ? `/api/verse/random?lang=${lang}&index=${index}`
+const fetchVerse = async (lang: string, verseId?: number) => {
+  const url = verseId !== undefined
+    ? `/api/verse/random?lang=${lang}&verseId=${verseId}`
     : `/api/verse/random?lang=${lang}`;
-  
+
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error('Failed to fetch verse');
@@ -276,9 +274,12 @@ try {
 } catch (error) {
   // Fallback to default verse
   setVerse({
+    verseId: 0,
+    book: '',
+    chapter: 0,
+    verseNumber: '0',
     text: 'Fallback verse text',
-    reference: 'Reference',
-    index: -1
+    language: 'en'
   });
 }
 ```
@@ -286,7 +287,7 @@ try {
 ## Best Practices
 
 1. **Always Handle Errors**: API calls can fail, implement error handling
-2. **Use Index for Consistency**: When switching languages, use index to get same verse
+2. **Use VerseId for Consistency**: When switching languages, use verseId to get same verse
 3. **Cache Responses**: Use service worker caching for offline support
 4. **Respect Daily Limit**: Don't fetch new verses if user already blessed today
 5. **Language Persistence**: Save language preference in localStorage

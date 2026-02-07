@@ -13,14 +13,25 @@ graph TB
         AppConfig[AppConfiguration.cs<br/>Shared Config]
     end
 
-    subgraph "Services"
-        VerseService[VerseService<br/>Singleton]
+    subgraph "Service Layer (Multi-Agent)"
+        Coordinator[IVerseCoordinatorService<br/>Orchestrator]
+        Lookup[IVerseLookupService<br/>Verse Selection]
+        Language[IVerseLanguageService<br/>Translation Lookup]
+        Formatter[IVerseFormatterService<br/>Response Assembly]
     end
 
     subgraph "Data Layer"
+        VerseRepo[VerseRepository<br/>Indexed Data]
+        RefParser[ReferenceParser<br/>Reference → Metadata]
         EnglishVerses[EnglishVerses<br/>~50 verses]
         AmharicVerses[AmharicVerses<br/>~50 verses]
         FinnishVerses[FinnishVerses<br/>~50 verses]
+    end
+
+    subgraph "Models"
+        VerseMetadata[VerseMetadata<br/>VerseId, Book, Chapter, VerseNumber]
+        VerseText[VerseText<br/>Text, Language]
+        VerseResponse[VerseResponse<br/>Full Response DTO]
     end
 
     subgraph "Endpoints"
@@ -30,16 +41,29 @@ graph TB
 
     Program --> AppConfig
     LambdaEntry --> AppConfig
-    AppConfig --> VerseService
+    AppConfig --> Coordinator
+    AppConfig --> Lookup
+    AppConfig --> Language
+    AppConfig --> Formatter
     AppConfig --> VerseEndpoint
     AppConfig --> HealthEndpoint
-    VerseEndpoint --> VerseService
-    VerseService --> EnglishVerses
-    VerseService --> AmharicVerses
-    VerseService --> FinnishVerses
+    VerseEndpoint --> Coordinator
+    Coordinator --> Lookup
+    Coordinator --> Language
+    Coordinator --> Formatter
+    Lookup --> VerseRepo
+    Language --> VerseRepo
+    VerseRepo --> RefParser
+    VerseRepo --> EnglishVerses
+    VerseRepo --> AmharicVerses
+    VerseRepo --> FinnishVerses
+    Lookup -.-> VerseMetadata
+    Language -.-> VerseText
+    Formatter -.-> VerseResponse
 
-    style VerseService fill:#1a374f,color:#fff
+    style Coordinator fill:#1a374f,color:#fff
     style AppConfig fill:#6f9078,color:#fff
+    style VerseRepo fill:#d06450,color:#fff
 ```
 
 ## Frontend Components
@@ -154,7 +178,10 @@ sequenceDiagram
     participant User
     participant Home
     participant API
-    participant VerseService
+    participant Coordinator
+    participant Lookup
+    participant Language
+    participant Formatter
     participant Storage
 
     User->>Home: Load Page
@@ -164,8 +191,14 @@ sequenceDiagram
         Home->>User: Show ReflectionView
     else New Blessing
         Home->>API: GET /api/verse/random?lang=en
-        API->>VerseService: GetRandom(lang)
-        VerseService-->>API: Return verse + index
+        API->>Coordinator: GetRandomVerse("en")
+        Coordinator->>Lookup: GetRandom()
+        Lookup-->>Coordinator: VerseMetadata
+        Coordinator->>Language: GetText(verseId, "en")
+        Language-->>Coordinator: VerseText
+        Coordinator->>Formatter: Format(metadata, text)
+        Formatter-->>Coordinator: VerseResponse
+        Coordinator-->>API: VerseResponse
         API-->>Home: JSON response
         Home->>User: Display verse
         User->>Home: Click "Amen"

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Encourager follows a serverless architecture pattern, leveraging AWS services for scalability and cost-effectiveness. The system is split into three main components: frontend, backend API, and infrastructure.
+Encourager follows a serverless architecture pattern, leveraging AWS services for scalability and cost-effectiveness. The system is split into three main components: frontend, backend API, and infrastructure. The backend uses a multi-agent service layer pattern where a Coordinator orchestrates Lookup, Language, and Formatter sub-services.
 
 ## High-Level Architecture
 
@@ -28,8 +28,11 @@ graph TB
 
     subgraph "Backend"
         Lambda[AWS Lambda<br/>.NET 10 Container]
-        VerseService[VerseService<br/>Singleton]
-        VerseData[Verse Data Classes<br/>English/Amharic/Finnish]
+        Coordinator[VerseCoordinatorService]
+        Lookup[VerseLookupService]
+        Language[VerseLanguageService]
+        Formatter[VerseFormatterService]
+        VerseRepo[VerseRepository<br/>Indexed Verse Data]
     end
 
     subgraph "Storage"
@@ -41,8 +44,12 @@ graph TB
     CF -->|Static Assets| S3
     CF -->|/api/* Requests| APIGW
     APIGW -->|Invoke| Lambda
-    Lambda --> VerseService
-    VerseService --> VerseData
+    Lambda --> Coordinator
+    Coordinator --> Lookup
+    Coordinator --> Language
+    Coordinator --> Formatter
+    Lookup --> VerseRepo
+    Language --> VerseRepo
     PWA -->|Read/Write| LocalStorage
     Browser -->|Install| PWA
 
@@ -50,6 +57,7 @@ graph TB
     style Lambda fill:#6f9078,color:#fff
     style S3 fill:#d06450,color:#fff
     style APIGW fill:#6f9078,color:#fff
+    style Coordinator fill:#1a374f,color:#fff
 ```
 
 ## Architecture Layers
@@ -80,8 +88,13 @@ graph TB
 ### 5. Backend Layer
 - **AWS Lambda**: Serverless compute (container image)
 - **.NET 10 Minimal APIs**: Lightweight web framework
-- **VerseService**: Singleton service managing verse data
-- **In-Memory Data**: Static verse collections (no database)
+- **Multi-Agent Service Layer**:
+  - `IVerseCoordinatorService` — orchestrates sub-services
+  - `IVerseLookupService` — random or ID-based verse selection
+  - `IVerseLanguageService` — language-specific text retrieval with fallback
+  - `IVerseFormatterService` — assembles `VerseResponse` from metadata + text
+- **VerseRepository**: Static indexed data from verse arrays (no database)
+- **ReferenceParser**: Parses Bible references into structured metadata
 
 ### 6. Storage Layer
 - **Browser localStorage**: Client-side persistence
@@ -92,9 +105,10 @@ graph TB
 
 1. **Serverless Architecture**: No servers to manage, auto-scaling, pay-per-use
 2. **Static Frontend**: S3 + CloudFront for global distribution and caching
-3. **In-Memory Backend**: No database needed for static verse data (~50 verses per language)
-4. **Client-Side State**: Daily blessing rule enforced in browser, no backend state
-5. **Dual Entry Points**: `Program.cs` for local dev, `LambdaEntryPoint.cs` for AWS
+3. **Multi-Agent Service Layer**: Coordinator pattern with Lookup, Language, and Formatter sub-services for separation of concerns
+4. **In-Memory Backend**: No database needed for static verse data (~50 verses per language)
+5. **Client-Side State**: Daily blessing rule enforced in browser, no backend state
+6. **Dual Entry Points**: `Program.cs` for local dev, `LambdaEntryPoint.cs` for AWS
 
 ## Technology Choices
 

@@ -1,7 +1,7 @@
 # Backend Setup Guide
 
 ## Overview
-The backend is a .NET 10 Web API using Minimal APIs pattern, deployed as an AWS Lambda function.
+The backend is a .NET 10 Web API using Minimal APIs pattern, deployed as an AWS Lambda function. It uses a multi-agent service layer where a Coordinator orchestrates Lookup, Language, and Formatter sub-services.
 
 ## Initial Setup
 
@@ -17,45 +17,66 @@ backend/
 ├── LambdaEntryPoint.cs     # AWS Lambda entry point
 ├── AppConfiguration.cs     # Shared service & endpoint registration
 ├── Services/
-│   └── VerseService.cs    # Verse retrieval logic
-├── Data/                  # Verse data (English, Amharic, Finnish)
+│   ├── IVerseCoordinatorService.cs   # Coordinator interface
+│   ├── VerseCoordinatorService.cs    # Orchestrates sub-services
+│   ├── IVerseLookupService.cs        # Lookup interface
+│   ├── VerseLookupService.cs         # Random/ID-based verse selection
+│   ├── IVerseLanguageService.cs      # Language interface
+│   ├── VerseLanguageService.cs       # Language-specific text retrieval
+│   ├── IVerseFormatterService.cs     # Formatter interface
+│   ├── VerseFormatterService.cs      # Response assembly
+│   └── ReferenceParser.cs            # Bible reference → metadata parser
+├── Data/
+│   ├── VerseRepository.cs   # Indexed verse data (VerseId → metadata + translations)
+│   ├── EnglishVerses.cs     # ~50 English verses
+│   ├── AmharicVerses.cs     # ~50 Amharic verses
+│   └── FinnishVerses.cs     # ~50 Finnish verses
 └── Models/
-    └── Verse.cs           # Verse model
+    └── Verse.cs             # Verse, VerseMetadata, VerseText, VerseResponse records
 ```
 
 ## Implementation Details
 
-### Verse Model
+### Models
 ```csharp
-public class Verse
-{
-    public string Text { get; set; }
-    public string Reference { get; set; }
-    public int Index { get; set; }
-}
+public record Verse(string Text, string Reference);
+public record VerseMetadata(int VerseId, string Book, int Chapter, string VerseNumber);
+public record VerseText(string Text, string Language);
+public record VerseResponse(int VerseId, string Book, int Chapter, string VerseNumber, string Text, string Language);
 ```
 
-### Verse Service
-- Contains hardcoded list of encouraging verses (50+ per language)
-- Supports multiple languages: English (en), Amharic (am), Finnish (fi)
-- Provides random verse selection
-- Falls back to English for unknown languages
+### Multi-Agent Service Layer
+
+| Service | Interface | Role |
+|---------|-----------|------|
+| **VerseCoordinatorService** | `IVerseCoordinatorService` | Orchestrates Lookup → Language → Formatter |
+| **VerseLookupService** | `IVerseLookupService` | `GetRandom()` / `GetByVerseId(id)` → `VerseMetadata` |
+| **VerseLanguageService** | `IVerseLanguageService` | `GetText(verseId, lang)` → `VerseText` (falls back to English) |
+| **VerseFormatterService** | `IVerseFormatterService` | `Format(metadata, text)` → `VerseResponse` |
+
+### Data Layer
+
+- **VerseRepository** — static class that indexes `EnglishVerses`, `AmharicVerses`, `FinnishVerses` arrays by VerseId (1-based)
+- **ReferenceParser** — regex-based parser: `"1 Peter 5:7"` → `(Book: "1 Peter", Chapter: 5, VerseNumber: "7")`
 
 ### API Endpoints
 
 #### GET /api/verse/random
-Returns a random verse.
+Returns a random or specific verse.
 
 **Query Parameters:**
 - `lang` (optional): Language code (en, am, fi). Defaults to English.
-- `index` (optional): Specific verse index. If provided, returns that verse instead of random.
+- `verseId` (optional): Specific verse ID (1-50). If provided, returns that verse instead of random.
 
 **Response:**
 ```json
 {
+  "verseId": 1,
+  "book": "Jeremiah",
+  "chapter": 29,
+  "verseNumber": "11",
   "text": "For God so loved the world...",
-  "reference": "John 3:16",
-  "index": 0
+  "language": "en"
 }
 ```
 
@@ -90,6 +111,21 @@ API will be available at `http://localhost:5226`
 ```bash
 dotnet test
 ```
+
+## VerseScraper Tool
+
+A development tool for scraping new verses and adding them to the data files:
+
+```bash
+cd tools/VerseScraper
+dotnet run -- --url "https://www.biblestudytools.com/topical-verses/inspirational-bible-verses/"
+```
+
+The scraper:
+1. Scrapes English verses from the given URL
+2. Deduplicates against existing verse data
+3. Fetches Finnish and Amharic translations via free Bible APIs
+4. Appends new verses to `EnglishVerses.cs`, `AmharicVerses.cs`, `FinnishVerses.cs`
 
 ## Deployment
 See main README.md for deployment instructions using AWS SAM.
