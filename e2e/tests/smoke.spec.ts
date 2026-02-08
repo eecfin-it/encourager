@@ -51,12 +51,48 @@ test.describe('API health', () => {
     expect(body.status).toBe('healthy');
   });
 
-  test('verse endpoint returns a verse', async ({ request }) => {
+  test('verse endpoint returns a verse with correct structure', async ({ request }) => {
     const response = await request.get('/api/verse/random?lang=en');
     expect(response.ok()).toBeTruthy();
     const body = await response.json();
+
+    // Verify VerseResponse structure
+    expect(body.verseId).toBeGreaterThanOrEqual(1);
+    expect(body.book).toBeTruthy();
+    expect(body.chapter).toBeGreaterThanOrEqual(1);
+    expect(body.verseNumber).toBeTruthy();
     expect(body.text).toBeTruthy();
-    expect(body.reference).toBeTruthy();
-    expect(body.index).toBeGreaterThanOrEqual(0);
+    expect(body.language).toBe('en');
+    expect(body.translations).toBeDefined();
+    expect(typeof body.translations).toBe('object');
+  });
+
+  test('verse endpoint returns all three language translations', async ({ request }) => {
+    const response = await request.get('/api/verse/random?lang=en');
+    expect(response.ok()).toBeTruthy();
+    const body = await response.json();
+
+    // Verify translations object contains all three languages
+    expect(body.translations.en).toBeTruthy();
+    expect(body.translations.am).toBeTruthy();
+    expect(body.translations.fi).toBeTruthy();
+  });
+
+  test('verse endpoint respects language parameter', async ({ request }) => {
+    const response = await request.get('/api/verse/random?lang=fi');
+    expect(response.ok()).toBeTruthy();
+    const body = await response.json();
+
+    expect(body.language).toBe('fi');
+    expect(body.text).toBe(body.translations.fi);
+  });
+
+  test('verse endpoint returns specific verse by ID', async ({ request }) => {
+    const response = await request.get('/api/verse/random?lang=en&verseId=1');
+    expect(response.ok()).toBeTruthy();
+    const body = await response.json();
+
+    expect(body.verseId).toBe(1);
+    expect(body.text).toBeTruthy();
   });
 });

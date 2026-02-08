@@ -1,5 +1,6 @@
 using Encourager.Api.Data;
 using Encourager.Api.Services;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 
@@ -29,7 +30,7 @@ public class VerseLanguageServiceTests
         };
         _repository.Count.Returns(2);
         _repository.Translations.Returns(translations);
-        _sut = new VerseLanguageService(_repository);
+        _sut = new VerseLanguageService(_repository, Substitute.For<ILogger<VerseLanguageService>>());
     }
 
     [Fact]

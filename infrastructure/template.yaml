@@ -17,8 +17,11 @@ Parameters:
     Description: Docker image tag for the Lambda function
   AllowedOrigin:
     Type: String
-    Default: "*"
-    Description: Allowed CORS origin (set to your CloudFront or custom domain URL in production)
+    Default: ""
+    Description: Optional CORS origin override. If empty, will use CloudFront URL automatically. For custom domains, set this to your domain (e.g., https://encourager.example.com)
+
+Conditions:
+  HasCustomOrigin: !Not [!Equals [!Ref AllowedOrigin, ""]]
 
 Globals:
   Function:
@@ -34,7 +37,10 @@ Resources:
     Properties:
       StageName: Prod
       Cors:
-        AllowOrigin: !Sub "'${AllowedOrigin}'"
+        AllowOrigin: !If
+          - HasCustomOrigin
+          - !Sub "'${AllowedOrigin}'"
+          - !Sub "'https://${CloudFrontDistribution.DomainName}'"
         AllowHeaders: "'Content-Type,Authorization'"
         AllowMethods: "'GET,OPTIONS'"
 
@@ -48,7 +54,10 @@ Resources:
       Environment:
         Variables:
           ASPNETCORE_ENVIRONMENT: !Ref Environment
-          ALLOWED_ORIGIN: !Ref AllowedOrigin
+          ALLOWED_ORIGIN: !If
+            - HasCustomOrigin
+            - !Ref AllowedOrigin
+            - !Sub "https://${CloudFrontDistribution.DomainName}"
       Events:
         VerseApi:
           Type: Api

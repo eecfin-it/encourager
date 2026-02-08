@@ -1,5 +1,6 @@
 using Encourager.Api.Models;
 using Encourager.Api.Services;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 
@@ -17,7 +18,7 @@ public class VerseCoordinatorServiceTests
 
     public VerseCoordinatorServiceTests()
     {
-        _sut = new VerseCoordinatorService(_lookupService, _languageService, _formatterService);
+        _sut = new VerseCoordinatorService(_lookupService, _languageService, _formatterService, Substitute.For<ILogger<VerseCoordinatorService>>());
     }
 
     [Fact]

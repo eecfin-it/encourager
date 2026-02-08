@@ -1,12 +1,14 @@
 using Encourager.Api.Models;
 using Encourager.Api.Services;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using Xunit;
 
 namespace Encourager.Api.Tests;
 
 public class VerseFormatterServiceTests
 {
-    private readonly VerseFormatterService _sut = new();
+    private readonly VerseFormatterService _sut = new(Substitute.For<ILogger<VerseFormatterService>>());
 
     [Fact]
     public void Format_ShouldReturnCompleteResponse_WhenGivenMetadataAndText()

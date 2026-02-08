@@ -1,6 +1,7 @@
 using Encourager.Api.Data;
 using Encourager.Api.Models;
 using Encourager.Api.Services;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 
@@ -21,7 +22,7 @@ public class VerseLookupServiceTests
         };
         _repository.Count.Returns(3);
         _repository.Metadata.Returns(metadata);
-        _sut = new VerseLookupService(_repository);
+        _sut = new VerseLookupService(_repository, Substitute.For<ILogger<VerseLookupService>>());
     }
 
     [Fact]
