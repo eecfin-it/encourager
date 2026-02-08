@@ -93,7 +93,7 @@ graph TB
   - `IVerseLookupService` — random or ID-based verse selection
   - `IVerseLanguageService` — language-specific text retrieval with fallback
   - `IVerseFormatterService` — assembles `VerseResponse` from metadata + text
-- **VerseRepository**: Static indexed data from verse arrays (no database)
+- **IVerseRepository / VerseRepository**: DI-injectable indexed data from verse arrays (no database); validates array lengths at construction
 - **ReferenceParser**: Parses Bible references into structured metadata
 
 ### 6. Storage Layer

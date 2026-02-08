@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLanguage } from '../hooks/useLanguage'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -8,6 +9,7 @@ interface BeforeInstallPromptEvent extends Event {
 export function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [showPrompt, setShowPrompt] = useState(false)
+  const { t } = useLanguage()
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -39,20 +41,20 @@ export function InstallPrompt() {
   if (!showPrompt) return null
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 bg-white p-4 rounded-lg shadow-lg border border-[#6f9078] z-50">
-      <p className="text-[#1a374f] mb-2">Install Amen app for a better experience</p>
+    <div className="fixed bottom-4 left-4 right-4 bg-white p-4 rounded-lg shadow-lg border border-eccfin-green z-50">
+      <p className="text-eccfin-navy mb-2">{t.installPrompt}</p>
       <div className="flex gap-2">
         <button
           onClick={handleInstall}
-          className="px-4 py-2 bg-[#1a374f] text-white rounded-lg"
+          className="px-4 py-2 bg-eccfin-navy text-white rounded-lg"
         >
-          Install
+          {t.install}
         </button>
         <button
           onClick={() => setShowPrompt(false)}
-          className="px-4 py-2 text-[#424555] rounded-lg"
+          className="px-4 py-2 text-eccfin-slate rounded-lg"
         >
-          Not now
+          {t.notNow}
         </button>
       </div>
     </div>

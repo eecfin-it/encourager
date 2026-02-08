@@ -27,7 +27,8 @@ backend/
 │   ├── VerseFormatterService.cs      # Response assembly
 │   └── ReferenceParser.cs            # Bible reference → metadata parser
 ├── Data/
-│   ├── VerseRepository.cs   # Indexed verse data (VerseId → metadata + translations)
+│   ├── IVerseRepository.cs  # Repository interface (Count, Metadata, Translations)
+│   ├── VerseRepository.cs   # Indexed verse data (VerseId → metadata + translations), DI singleton
 │   ├── EnglishVerses.cs     # ~50 English verses
 │   ├── AmharicVerses.cs     # ~50 Amharic verses
 │   └── FinnishVerses.cs     # ~50 Finnish verses
@@ -56,7 +57,8 @@ public record VerseResponse(int VerseId, string Book, int Chapter, string VerseN
 
 ### Data Layer
 
-- **VerseRepository** — static class that indexes `EnglishVerses`, `AmharicVerses`, `FinnishVerses` arrays by VerseId (1-based)
+- **IVerseRepository** — interface exposing `Count`, `Metadata`, and `Translations` dictionaries
+- **VerseRepository** — implements `IVerseRepository`, registered as DI singleton; indexes `EnglishVerses`, `AmharicVerses`, `FinnishVerses` arrays by VerseId (1-based); validates array lengths match at construction
 - **ReferenceParser** — regex-based parser: `"1 Peter 5:7"` → `(Book: "1 Peter", Chapter: 5, VerseNumber: "7")`
 
 ### API Endpoints

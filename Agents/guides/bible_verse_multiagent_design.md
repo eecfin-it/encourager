@@ -7,7 +7,7 @@ This document describes the **multi-agent, in-memory Bible verse system** using 
 
 ## 1. Data Structure
 
-Verse data is stored in static C# arrays (`EnglishVerses`, `AmharicVerses`, `FinnishVerses`) with ~50 verses each. At startup, `VerseRepository` indexes these into dictionaries keyed by VerseId (1-based):
+Verse data is stored in static C# arrays (`EnglishVerses`, `AmharicVerses`, `FinnishVerses`) with ~50 verses each. At construction, `VerseRepository` (implementing `IVerseRepository`, registered as singleton via DI) validates that all three arrays have equal length, then indexes them into dictionaries keyed by VerseId (1-based):
 
 ```
 VerseRepository.Metadata[verseId] → VerseMetadata(VerseId, Book, Chapter, VerseNumber)
@@ -32,11 +32,13 @@ VerseRepository.Translations[verseId]["am"] → "እኔ ስለ እናንተ..."
    - Calls sub-services in sequence: Lookup → Language → Formatter
 
 2. **VerseLookupService** (`IVerseLookupService`):
+   - Injected with `IVerseRepository`
    - `GetRandom()` → returns `VerseMetadata` with random VerseId
-   - `GetByVerseId(int verseId)` → returns `VerseMetadata` (clamped to valid range)
+   - `GetByVerseId(int verseId)` → returns `VerseMetadata` (clamped to valid range — single clamping responsibility)
 
 3. **VerseLanguageService** (`IVerseLanguageService`):
-   - `GetText(int verseId, string language)` → returns `VerseText`
+   - Injected with `IVerseRepository`
+   - `GetText(int verseId, string language)` → returns `VerseText` (expects already-valid verseId from LookupService)
    - Falls back to English for unsupported languages
 
 4. **VerseFormatterService** (`IVerseFormatterService`):
@@ -128,6 +130,7 @@ dotnet run -- --url "https://www.biblestudytools.com/topical-verses/inspirationa
 All services are registered as singletons in `AppConfiguration.cs`:
 
 ```csharp
+services.AddSingleton<IVerseRepository, VerseRepository>();
 services.AddSingleton<IVerseLookupService, VerseLookupService>();
 services.AddSingleton<IVerseLanguageService, VerseLanguageService>();
 services.AddSingleton<IVerseFormatterService, VerseFormatterService>();
@@ -140,9 +143,11 @@ services.AddSingleton<IVerseCoordinatorService, VerseCoordinatorService>();
 
 - **VerseId is the central key** → ensures consistency across languages
 - **Randomize once per request** → cache VerseId for language switching
-- **All data stays in memory** → `VerseRepository` static dictionaries
+- **All data stays in memory** → `VerseRepository` instance (singleton via DI)
+- **DI-injectable** → `IVerseRepository` interface enables mocking in tests
+- **Single clamping responsibility** → only `VerseLookupService` clamps verseId to valid range
 - **Multi-agent architecture** allows modular, testable services
-- **NSubstitute** mocking for unit testing coordinator orchestration
+- **NSubstitute** mocking for unit testing all services independently
 - **Cloud caching** (CloudFront / Cloud CDN) reduces backend load
 
 ---

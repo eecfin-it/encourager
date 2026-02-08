@@ -16,7 +16,7 @@ sequenceDiagram
 
     User->>Browser: Scan QR / Visit URL
     Browser->>Browser: Check localStorage
-    alt No Blessing Today
+    alt No Blessing Today (useVerse hook)
         Browser->>CloudFront: GET /api/verse/random?lang=en
         CloudFront->>API Gateway: Forward request
         API Gateway->>Lambda: Invoke function
@@ -33,7 +33,7 @@ sequenceDiagram
         CloudFront-->>Browser: Response
         Browser->>Browser: Display verse
         Browser->>Browser: Store in localStorage on "Amen"
-    else Already Blessed Today
+    else Already Blessed Today (useDailyBlessing hook)
         Browser->>Browser: Read from localStorage
         Browser->>Browser: Show ReflectionView
     end

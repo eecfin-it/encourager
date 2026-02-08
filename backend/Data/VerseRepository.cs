@@ -3,14 +3,22 @@ using Encourager.Api.Services;
 
 namespace Encourager.Api.Data;
 
-public static class VerseRepository
+public class VerseRepository : IVerseRepository
 {
-    public static int Count { get; }
-    public static IReadOnlyDictionary<int, VerseMetadata> Metadata { get; }
-    public static IReadOnlyDictionary<int, IReadOnlyDictionary<string, string>> Translations { get; }
+    public int Count { get; }
+    public IReadOnlyDictionary<int, VerseMetadata> Metadata { get; }
+    public IReadOnlyDictionary<int, IReadOnlyDictionary<string, string>> Translations { get; }
 
-    static VerseRepository()
+    public VerseRepository()
     {
+        if (EnglishVerses.Verses.Length != AmharicVerses.Verses.Length ||
+            EnglishVerses.Verses.Length != FinnishVerses.Verses.Length)
+        {
+            throw new InvalidOperationException(
+                $"Verse array lengths must match: English={EnglishVerses.Verses.Length}, " +
+                $"Amharic={AmharicVerses.Verses.Length}, Finnish={FinnishVerses.Verses.Length}");
+        }
+
         Count = EnglishVerses.Verses.Length;
 
         var metadata = new Dictionary<int, VerseMetadata>(Count);

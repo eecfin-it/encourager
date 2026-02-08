@@ -17,6 +17,10 @@ export interface Translations {
   pageNotFound: string
   pageNotFoundMessage: string
   goHome: string
+  fetchError: string
+  installPrompt: string
+  install: string
+  notNow: string
 }
 
 const en: Translations = {
@@ -36,6 +40,10 @@ const en: Translations = {
   pageNotFound: 'Page Not Found',
   pageNotFoundMessage: 'The page you are looking for does not exist.',
   goHome: 'Go Home',
+  fetchError: 'Could not load verse. Please check your connection.',
+  installPrompt: 'Install Amen app for a better experience',
+  install: 'Install',
+  notNow: 'Not now',
 }
 
 const am: Translations = {
@@ -55,6 +63,10 @@ const am: Translations = {
   pageNotFound: 'ገጽ አልተገኘም',
   pageNotFoundMessage: 'የሚፈልጉት ገጽ የለም።',
   goHome: 'ወደ መነሻ ይሂዱ',
+  fetchError: 'ጥቅስ መጫን አልተቻለም። እባክዎ ግንኙነትዎን ያረጋግጡ።',
+  installPrompt: 'ለተሻለ ተሞክሮ የአሜን መተግበሪያን ይጫኑ',
+  install: 'ጫን',
+  notNow: 'አሁን አይደለም',
 }
 
 const fi: Translations = {
@@ -74,6 +86,10 @@ const fi: Translations = {
   pageNotFound: 'Sivua ei löytynyt',
   pageNotFoundMessage: 'Etsimääsi sivua ei ole olemassa.',
   goHome: 'Palaa kotiin',
+  fetchError: 'Jakeen lataaminen epäonnistui. Tarkista yhteys.',
+  installPrompt: 'Asenna Amen-sovellus parempaa kokemusta varten',
+  install: 'Asenna',
+  notNow: 'Ei nyt',
 }
 
 export const translations: Record<Language, Translations> = { en, am, fi }

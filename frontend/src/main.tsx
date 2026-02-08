@@ -8,6 +8,7 @@ import Admin from './pages/Admin'
 import NotFound from './pages/NotFound'
 import { LanguageProvider } from './contexts/LanguageContext'
 import LanguageSwitcher from './components/LanguageSwitcher'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 if ('serviceWorker' in navigator) {
   registerSW({
@@ -22,6 +23,7 @@ if ('serviceWorker' in navigator) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <ErrorBoundary>
     <LanguageProvider>
       <BrowserRouter>
         <LanguageSwitcher />
@@ -32,5 +34,6 @@ createRoot(document.getElementById('root')!).render(
         </Routes>
       </BrowserRouter>
     </LanguageProvider>
+    </ErrorBoundary>
   </StrictMode>,
 )

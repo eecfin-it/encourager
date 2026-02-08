@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Encourager.Api.Data;
 using Encourager.Api.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -26,6 +27,7 @@ public static class AppConfiguration
                 }
             });
         });
+        services.AddSingleton<IVerseRepository, VerseRepository>();
         services.AddSingleton<IVerseLookupService, VerseLookupService>();
         services.AddSingleton<IVerseLanguageService, VerseLanguageService>();
         services.AddSingleton<IVerseFormatterService, VerseFormatterService>();

@@ -1,11 +1,36 @@
+using Encourager.Api.Data;
 using Encourager.Api.Services;
+using NSubstitute;
 using Xunit;
 
 namespace Encourager.Api.Tests;
 
 public class VerseLanguageServiceTests
 {
-    private readonly VerseLanguageService _sut = new();
+    private readonly IVerseRepository _repository = Substitute.For<IVerseRepository>();
+    private readonly VerseLanguageService _sut;
+
+    public VerseLanguageServiceTests()
+    {
+        var translations = new Dictionary<int, IReadOnlyDictionary<string, string>>
+        {
+            [1] = new Dictionary<string, string>
+            {
+                ["en"] = "In the beginning",
+                ["am"] = "በመጀመሪያ",
+                ["fi"] = "Alussa"
+            },
+            [2] = new Dictionary<string, string>
+            {
+                ["en"] = "The Lord is my shepherd",
+                ["am"] = "እግዚአብሔር እረኛዬ ነው",
+                ["fi"] = "Herra on minun paimeneni"
+            }
+        };
+        _repository.Count.Returns(2);
+        _repository.Translations.Returns(translations);
+        _sut = new VerseLanguageService(_repository);
+    }
 
     [Fact]
     public void GetText_ShouldReturnEnglishText_WhenLanguageIsEn()
@@ -13,7 +38,7 @@ public class VerseLanguageServiceTests
         var actual = _sut.GetText(1, "en");
 
         Assert.Equal("en", actual.Language);
-        Assert.Contains("plans", actual.Text);
+        Assert.Equal("In the beginning", actual.Text);
     }
 
     [Fact]
@@ -22,8 +47,7 @@ public class VerseLanguageServiceTests
         var actual = _sut.GetText(1, "am");
 
         Assert.Equal("am", actual.Language);
-        Assert.False(string.IsNullOrWhiteSpace(actual.Text));
-        Assert.NotEqual(_sut.GetText(1, "en").Text, actual.Text);
+        Assert.Equal("በመጀመሪያ", actual.Text);
     }
 
     [Fact]
@@ -32,8 +56,7 @@ public class VerseLanguageServiceTests
         var actual = _sut.GetText(1, "fi");
 
         Assert.Equal("fi", actual.Language);
-        Assert.False(string.IsNullOrWhiteSpace(actual.Text));
-        Assert.NotEqual(_sut.GetText(1, "en").Text, actual.Text);
+        Assert.Equal("Alussa", actual.Text);
     }
 
     [Fact]
@@ -42,16 +65,7 @@ public class VerseLanguageServiceTests
         var actual = _sut.GetText(1, "xx");
 
         Assert.Equal("en", actual.Language);
-        Assert.Equal(_sut.GetText(1, "en").Text, actual.Text);
-    }
-
-    [Fact]
-    public void GetText_ShouldClampVerseId_WhenIdOutOfRange()
-    {
-        var actual = _sut.GetText(9999, "en");
-
-        Assert.Equal("en", actual.Language);
-        Assert.False(string.IsNullOrWhiteSpace(actual.Text));
+        Assert.Equal("In the beginning", actual.Text);
     }
 
     [Fact]
@@ -60,20 +74,8 @@ public class VerseLanguageServiceTests
         var actual = _sut.GetAllTexts(1);
 
         Assert.Equal(3, actual.Count);
-        Assert.True(actual.ContainsKey("en"));
-        Assert.True(actual.ContainsKey("fi"));
-        Assert.True(actual.ContainsKey("am"));
-        Assert.False(string.IsNullOrWhiteSpace(actual["en"]));
-        Assert.False(string.IsNullOrWhiteSpace(actual["fi"]));
-        Assert.False(string.IsNullOrWhiteSpace(actual["am"]));
-    }
-
-    [Fact]
-    public void GetAllTexts_ShouldClampVerseId_WhenIdOutOfRange()
-    {
-        var actual = _sut.GetAllTexts(9999);
-
-        Assert.Equal(3, actual.Count);
-        Assert.False(string.IsNullOrWhiteSpace(actual["en"]));
+        Assert.Equal("In the beginning", actual["en"]);
+        Assert.Equal("በመጀመሪያ", actual["am"]);
+        Assert.Equal("Alussa", actual["fi"]);
     }
 }

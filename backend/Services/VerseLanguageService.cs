@@ -3,21 +3,19 @@ using Encourager.Api.Models;
 
 namespace Encourager.Api.Services;
 
-public class VerseLanguageService : IVerseLanguageService
+public class VerseLanguageService(IVerseRepository repository) : IVerseLanguageService
 {
     private static readonly HashSet<string> SupportedLanguages = ["en", "am", "fi"];
 
     public VerseText GetText(int verseId, string language)
     {
-        var safeId = Math.Clamp(verseId, 1, VerseRepository.Count);
         var lang = SupportedLanguages.Contains(language) ? language : "en";
-        var text = VerseRepository.Translations[safeId][lang];
+        var text = repository.Translations[verseId][lang];
         return new VerseText(text, lang);
     }
 
     public IReadOnlyDictionary<string, string> GetAllTexts(int verseId)
     {
-        var safeId = Math.Clamp(verseId, 1, VerseRepository.Count);
-        return VerseRepository.Translations[safeId];
+        return repository.Translations[verseId];
     }
 }

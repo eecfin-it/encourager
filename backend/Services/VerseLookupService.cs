@@ -3,17 +3,17 @@ using Encourager.Api.Models;
 
 namespace Encourager.Api.Services;
 
-public class VerseLookupService : IVerseLookupService
+public class VerseLookupService(IVerseRepository repository) : IVerseLookupService
 {
     public VerseMetadata GetRandom()
     {
-        var verseId = Random.Shared.Next(1, VerseRepository.Count + 1);
-        return VerseRepository.Metadata[verseId];
+        var verseId = Random.Shared.Next(1, repository.Count + 1);
+        return repository.Metadata[verseId];
     }
 
     public VerseMetadata GetByVerseId(int verseId)
     {
-        var safeId = Math.Clamp(verseId, 1, VerseRepository.Count);
-        return VerseRepository.Metadata[safeId];
+        var safeId = Math.Clamp(verseId, 1, repository.Count);
+        return repository.Metadata[safeId];
     }
 }

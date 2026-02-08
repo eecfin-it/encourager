@@ -62,7 +62,7 @@ dotnet test --verbosity normal              # verbose output
   - `IVerseLanguageService` — language-specific text retrieval with English fallback, returns `VerseText`
   - `IVerseFormatterService` — assembles `VerseResponse` from metadata + text
 - **Data Layer**:
-  - `VerseRepository` — static indexed data from `EnglishVerses`, `AmharicVerses`, `FinnishVerses` arrays
+  - `IVerseRepository` / `VerseRepository` — DI-injectable indexed data from `EnglishVerses`, `AmharicVerses`, `FinnishVerses` arrays; validates array lengths match at construction
   - `ReferenceParser` — parses Bible references ("1 Peter 5:7") into structured metadata (Book, Chapter, VerseNumber)
   - Each data class contains ~50 verses with `Text` and `Reference` properties
 - **API Endpoints**:
@@ -76,13 +76,17 @@ dotnet test --verbosity normal              # verbose output
 - **TypeScript**: Strict mode enabled, no `any` types allowed
 - **State Management**:
   - `LanguageContext` — global language state (en/am/fi), persisted to `localStorage.lang`
+  - `useDailyBlessing` hook — encapsulates localStorage persistence, legacy migration, and blessing lock logic
+  - `useVerse` hook — manages verse fetching with three paths: cached translation, fetch-by-ID, and fetch-random
   - Daily blessing state in `localStorage.last_blessing_data`: `{ timestamp: ISO8601, verse: { verseId, book, chapter, verseNumber, text, language } }`
-  - Legacy localStorage migration: auto-converts old `{ text, reference, index }` format to new format
-  - Blessing locks after "Amen" click until midnight; date comparison checks year-month-day match
+- **Service Layer**: `services/api.ts` centralizes API calls (`fetchVerse`) and error typing (`ApiError`)
+- **Types**: Shared type definitions in `types/verse.ts` (`Verse`, `BlessingData`, `LegacyVerse`, `LegacyBlessingData`)
+- **Error Handling**: `ErrorBoundary` wraps the app in `main.tsx`; `useVerse` exposes error state for fetch failures
 - **Routing**: React Router v7 with two routes:
   - `/` — Home page (verse display, Amen button, reflection view if already blessed today)
   - `/admin` — QR code generator (not linked in UI, admin access only)
 - **Animations**: Framer Motion for verse transitions, canvas-confetti for celebration on "Amen"
+- **i18n**: All user-facing strings translated via `translations.ts` (en/am/fi), including InstallPrompt
 - **PWA**: vite-plugin-pwa with Workbox strategies:
   - Network-first for `/api/*` routes (fresh data, fallback to cache)
   - Cache-first for static assets (CSS, JS, images)

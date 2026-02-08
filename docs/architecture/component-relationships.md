@@ -21,7 +21,8 @@ graph TB
     end
 
     subgraph "Data Layer"
-        VerseRepo[VerseRepository<br/>Indexed Data]
+        IVerseRepo[IVerseRepository<br/>Repository Interface]
+        VerseRepo[VerseRepository<br/>DI Singleton]
         RefParser[ReferenceParser<br/>Reference → Metadata]
         EnglishVerses[EnglishVerses<br/>~50 verses]
         AmharicVerses[AmharicVerses<br/>~50 verses]
@@ -41,6 +42,7 @@ graph TB
 
     Program --> AppConfig
     LambdaEntry --> AppConfig
+    AppConfig --> IVerseRepo
     AppConfig --> Coordinator
     AppConfig --> Lookup
     AppConfig --> Language
@@ -51,8 +53,9 @@ graph TB
     Coordinator --> Lookup
     Coordinator --> Language
     Coordinator --> Formatter
-    Lookup --> VerseRepo
-    Language --> VerseRepo
+    Lookup --> IVerseRepo
+    Language --> IVerseRepo
+    IVerseRepo --> VerseRepo
     VerseRepo --> RefParser
     VerseRepo --> EnglishVerses
     VerseRepo --> AmharicVerses
@@ -72,6 +75,7 @@ graph TB
 graph TB
     subgraph "Entry Point"
         Main[main.tsx<br/>App Bootstrap]
+        ErrorBoundary[ErrorBoundary<br/>Error Fallback UI]
     end
 
     subgraph "Routing"
@@ -94,11 +98,21 @@ graph TB
         ReflectionView[ReflectionView.tsx]
         SuccessView[SuccessView.tsx]
         Celebration[Celebration.tsx<br/>Confetti]
-        InstallPrompt[InstallPrompt.tsx]
+        InstallPrompt[InstallPrompt.tsx<br/>i18n-enabled]
     end
 
     subgraph "Hooks"
         UseLanguage[useLanguage<br/>Language Hook]
+        UseDailyBlessing[useDailyBlessing<br/>Blessing State & Lock]
+        UseVerse[useVerse<br/>Verse Fetch & Cache]
+    end
+
+    subgraph "Services"
+        ApiService[api.ts<br/>fetchVerse & ApiError]
+    end
+
+    subgraph "Types"
+        VerseTypes[verse.ts<br/>Verse, BlessingData]
     end
 
     subgraph "i18n"
@@ -110,9 +124,10 @@ graph TB
         Manifest[PWA Manifest]
     end
 
-    Main --> Router
-    Main --> LanguageContext
+    Main --> ErrorBoundary
+    ErrorBoundary --> LanguageContext
     Main --> ServiceWorker
+    LanguageContext --> Router
     Router --> HomeRoute
     Router --> AdminRoute
     HomeRoute --> Home
@@ -123,13 +138,21 @@ graph TB
     Home --> Celebration
     Home --> InstallPrompt
     Home --> UseLanguage
+    Home --> UseDailyBlessing
+    Home --> UseVerse
+    UseVerse --> ApiService
+    UseVerse --> UseLanguage
+    UseDailyBlessing --> VerseTypes
+    ApiService --> VerseTypes
     UseLanguage --> LanguageContext
+    InstallPrompt --> UseLanguage
     LanguageContext --> Translations
     ServiceWorker --> Manifest
 
     style LanguageContext fill:#1a374f,color:#fff
     style Home fill:#6f9078,color:#fff
     style ServiceWorker fill:#d06450,color:#fff
+    style ErrorBoundary fill:#d06450,color:#fff
 ```
 
 ## Data Flow: Daily Blessing Rule
